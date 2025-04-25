@@ -229,7 +229,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/heru/Dokumen/PBS/PROJECT/PROGRAM/backend/app/generated/prisma",
+      "value": "/home/heru/Dokumen/PBS/PBS-IF22DX-MMC/PROGRAM/backend/app/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -243,12 +243,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/heru/Dokumen/PBS/PROJECT/PROGRAM/backend/prisma/schema.prisma",
+    "sourceFilePath": "/home/heru/Dokumen/PBS/PBS-IF22DX-MMC/PROGRAM/backend/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../../.env",
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../prisma",
   "clientVersion": "6.6.0",
@@ -257,11 +256,12 @@ const config = {
     "db"
   ],
   "activeProvider": "mysql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "mysql://root:@localhost:3306/PBS_IF22DX_MMC"
+        "value": null
       }
     }
   },

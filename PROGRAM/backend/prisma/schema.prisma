@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../app/generated/prisma"
 }
 
 datasource db {
@@ -14,97 +7,112 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Buat Enum Kategori
-enum kategori {
-  MAKANAN
-  MINUMAN
+model detail_pemesanan {
+  id           Int          @id @default(autoincrement())
+  idPemesanan  Int
+  idKeranjang  Int
+  note         String       @db.Text
+  createdAt    DateTime     @default(now())
+  tb_keranjang tb_keranjang @relation(fields: [idKeranjang], references: [id], onDelete: Cascade)
+  tb_pemesanan tb_pemesanan @relation(fields: [idPemesanan], references: [id], onDelete: Cascade)
+
+  @@index([idKeranjang], map: "detail_pemesanan_idKeranjang_fkey")
+  @@index([idPemesanan], map: "detail_pemesanan_idPemesanan_fkey")
 }
-enum ketersediaan {
-  READY
-  SOLDOUT
+
+model tb_keranjang {
+  id               Int                 @id @unique @default(autoincrement())
+  idUser           Int
+  idMenu           Int
+  quantity         Int
+  total            Int
+  status           tb_keranjang_status @default(FALSE)
+  detail_pemesanan detail_pemesanan[]
+  tb_menu          tb_menu             @relation(fields: [idMenu], references: [id], onDelete: Cascade)
+  tb_user          tb_user             @relation(fields: [idUser], references: [id], onDelete: Cascade)
+
+  @@index([idMenu], map: "tb_keranjang_idMenu_fkey")
+  @@index([idUser], map: "tb_keranjang_idUser_fkey")
 }
-enum role {
-  ADMIN
-  KASIR
-  PELANGGAN
+
+model tb_meja {
+  id           Int            @id @unique @default(autoincrement())
+  namaMeja     String         @db.VarChar(20)
+  tb_pemesanan tb_pemesanan[]
 }
-enum metode_pembayaran {
+
+model tb_menu {
+  id           Int                  @id @unique @default(autoincrement())
+  nama         String               @db.VarChar(100)
+  deskripsi    String               @db.Text
+  harga        Int
+  kategori     tb_menu_kategori     @default(MAKANAN)
+  gambar_menu  String               @db.Text
+  ketersediaan tb_menu_ketersediaan @default(READY)
+  tb_keranjang tb_keranjang[]
+}
+
+model tb_pemesanan {
+  id               Int                 @id @unique @default(autoincrement())
+  idUser           Int
+  idMeja           Int
+  metode           tb_pemesanan_metode @default(TUNAI)
+  totalProduk      Int
+  pajak            String              @db.VarChar(10)
+  total            Int
+  status           tb_pemesanan_status @default(MENUNGGUPEMBAYARAN)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime
+  detail_pemesanan detail_pemesanan[]
+  tb_meja          tb_meja             @relation(fields: [idMeja], references: [id], onDelete: Cascade)
+  tb_user          tb_user             @relation(fields: [idUser], references: [id], onDelete: Cascade)
+
+  @@index([idMeja], map: "tb_pemesanan_idMeja_fkey")
+  @@index([idUser], map: "tb_pemesanan_idUser_fkey")
+}
+
+model tb_user {
+  id           Int            @id @unique @default(autoincrement())
+  namaLengkap  String         @db.VarChar(100)
+  username     String         @db.Char(22)
+  noHp         String         @db.VarChar(20)
+  email        String         @db.VarChar(50)
+  alamat       String         @db.Text
+  password     String         @db.VarChar(50)
+  role         tb_user_role   @default(PELANGGAN)
+  tb_keranjang tb_keranjang[]
+  tb_pemesanan tb_pemesanan[]
+}
+
+enum tb_pemesanan_metode {
   TUNAI
   ePayment
 }
-model tb_menu {
-  id Int @unique @id @default(autoincrement())
-  nama String @db.VarChar(100)
-  deskripsi String @db.Text
-  harga Int @db.Int()
-  kategori kategori @default(MAKANAN)
-  gambar_menu String @db.Text
-  ketersediaan ketersediaan @default(READY)
-  keranjang tb_keranjang[]
+
+enum tb_menu_kategori {
+  MAKANAN
+  MINUMAN
 }
 
-model tb_user{
-  id Int @unique @id @default(autoincrement())
-  namaLengkap String @db.VarChar(100)
-  username String @db.Char(22)
-  noHp String @db.VarChar(20)
-  email String @db.VarChar(50)
-  alamat String @db.Text
-  password String @db.VarChar(50)
-  role role @default(PELANGGAN)
-  keranjang tb_keranjang[]
-  pemesanan tb_pemesanan[]
-}
-
-enum status {
+enum tb_keranjang_status {
   TRUE
   FALSE
 }
-model tb_keranjang{
-  id Int @unique @id @default(autoincrement())
-  idUser Int @db.Int
-  idMenu Int @db.Int
-  quantity Int @db.Int
-  total Int @db.Int
-  status status @default(FALSE)    // buat relasi
-  user tb_user @relation(fields: [idUser], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  menu tb_menu @relation(fields: [idMenu], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  keranjang detail_pemesanan[]
+
+enum tb_menu_ketersediaan {
+  READY
+  SOLDOUT
 }
 
-model tb_meja{
-  id Int @unique @id @default(autoincrement())
-  namaMeja String @db.VarChar(20)
-  meja tb_pemesanan[]
-}
-enum status_pemesanan {
+enum tb_pemesanan_status {
   MENUNGGUPEMBAYARAN
   DIPROSES
   SELESAI
   DIBATALKAN
 }
-model tb_pemesanan{
-  id Int @unique @id @default(autoincrement())
-  idUser Int @db.Int
-  idMeja Int @db.Int
-  metode metode_pembayaran @default(TUNAI)
-  totalProduk Int @db.Int
-  pajak String @db.VarChar(10)
-  total Int @db.Int
-  status status_pemesanan @default(MENUNGGUPEMBAYARAN)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user tb_user @relation(fields: [idUser], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  meja tb_meja @relation(fields: [idMeja], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  pemesanan detail_pemesanan[]
-}
 
-model detail_pemesanan {
-  id            Int          @id @default(autoincrement())
-  idPemesanan   Int          @db.Int
-  idKeranjang   Int          @db.Int
-  note String @db.Text
-  createdAt     DateTime     @default(now())
-  pemesanan     tb_pemesanan @relation(fields: [idPemesanan], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  keranjang     tb_keranjang @relation(fields: [idKeranjang], references: [id], onDelete: Cascade, onUpdate: Cascade)
+enum tb_user_role {
+  ADMIN
+  KASIR
+  PELANGGAN
 }
