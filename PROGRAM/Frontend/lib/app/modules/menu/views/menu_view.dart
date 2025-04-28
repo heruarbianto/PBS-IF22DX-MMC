@@ -5,10 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart'; 
 
 void main() {
-  runApp(MyApp());
+  runApp(MenuView());
 }
 
-class MyApp extends StatelessWidget {
+class MenuView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
