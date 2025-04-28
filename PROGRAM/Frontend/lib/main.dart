@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart'; 
 
 void main() {
   runApp(MyApp());
@@ -33,6 +34,9 @@ class _FoodDrinkPageState extends State<FoodDrinkPage> {
   List<Map<String, dynamic>> _allItems = [];
   List<Map<String, dynamic>> _filteredItems = [];
 
+// Format angka dengan pemisah ribuan
+  final NumberFormat _currencyFormat = NumberFormat('#,###', 'id_ID');
+  
   // Fungsi untuk mengambil data dari API
   Future<List<Map<String, dynamic>>> fetchItems() async {
     final response = await http.get(Uri.parse('http://192.168.18.8:1220/api/menu'));
@@ -230,7 +234,7 @@ class _FoodDrinkPageState extends State<FoodDrinkPage> {
                                   Row(
                                     children: [
                                       Text(
-                                        'Rp${item['price'].toInt()}',
+                                        'Rp. ${_currencyFormat.format(item['price'].toInt())}',
                                         style: GoogleFonts.poppins(
                                           fontWeight: FontWeight.bold,
                                           color: Colors.blueAccent,
