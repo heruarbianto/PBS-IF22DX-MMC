@@ -39,7 +39,7 @@ export const GET = async (request: NextRequest) => {
           error: 0,
           message: null,
         },
-        dataUser: view,
+        dataMenu: view,
       },
       {
         status: 200,
@@ -66,7 +66,7 @@ export const GET = async (request: NextRequest) => {
         error: 0,
         message: null,
       },
-      dataUser: view,
+      dataMenu: view,
     },
     {
       status: 200,
@@ -153,13 +153,19 @@ export async function POST(req: NextRequest) {
     });
 
     // Berikan response sukses
-    return NextResponse.json({
-      message: 'Upload dan penyimpanan berhasil.',
-      data: createdMenu,
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+          metadata: {
+            error: 0,
+            message: "Data Berhasil Disimpan!!!",
+          },
+        dataMenu:createdMenu,
+      },{
+          status:201
+      })
 
   } catch (error: any) {
-    console.error('Error saat upload:', error);
+    // console.error('Error saat upload:', error);
 
     // Tangani error tak terduga
     return NextResponse.json({
