@@ -1,104 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:flutter/material.dart' hide MenuController;
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../controllers/menu_controller.dart';
 
-void main() {
-  runApp(MenuView());
-}
-
-class MenuView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Makanan & Minuman',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        textTheme: GoogleFonts.poppinsTextTheme(),
-      ),
-      home: FoodDrinkPage(),
-    );
-  }
-}
-
-class FoodDrinkPage extends StatefulWidget {
-  @override
-  _FoodDrinkPageState createState() => _FoodDrinkPageState();
-}
-
-class _FoodDrinkPageState extends State<FoodDrinkPage> {
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-  String _selectedCategory = 'All';
-  List<Map<String, dynamic>> _allItems = [];
-  List<Map<String, dynamic>> _filteredItems = [];
-
-// Format angka dengan pemisah ribuan
-  final NumberFormat _currencyFormat = NumberFormat('#,###', 'id_ID');
-
-  // Fungsi untuk mengambil data dari API
-  Future<List<Map<String, dynamic>>> fetchItems() async {
-    final response = await http.get(Uri.parse('http://192.168.18.8:1220/api/menu'));
-    if (response.statusCode == 200) {
-      final jsonData = jsonDecode(response.body);
-      if (jsonData['metadata']['error'] == 0) {
-        List<dynamic> data = jsonData['dataUser'];
-        return data.map((item) {
-          return {
-            'id': item['id'],
-            'name': item['nama'],
-            'price': item['harga'],
-            'rating': 4.5, // Rating dummy karena tidak ada di JSON
-            'sold': '50+ terjual', // Jumlah terjual dummy karena tidak ada di JSON
-            'image': 'https://canden.bantulkab.go.id/assets/files/artikel/sedang_1515377400Jajan_Pasar_in_Jakarta.JPG', // Menambahkan base URL untuk gambar
-            'category': item['kategori'],
-            'availability': item['ketersediaan'],
-          };
-        }).toList();
-      } else {
-        throw Exception('API error: ${jsonData['metadata']['message']}');
-      }
-    } else {
-      throw Exception('Failed to load items');
-    }
-  }
-
-  // Fungsi untuk memfilter item berdasarkan pencarian, kategori, dan ketersediaan
-  void _filterItems() {
-    setState(() {
-      _filteredItems = _allItems.where((item) {
-        bool matchesSearch = item['name']
-            .toString()
-            .toLowerCase()
-            .contains(_searchQuery.toLowerCase());
-        bool matchesCategory = _selectedCategory == 'All' ||
-            item['category'] == _selectedCategory;
-        bool isAvailable = item['availability'] == 'READY'; // Hanya menampilkan item yang READY
-        return matchesSearch && matchesCategory && isAvailable;
-      }).toList();
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(() {
-      setState(() {
-        _searchQuery = _searchController.text;
-        _filterItems();
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
+class MenuView extends GetView<MenusController> {
+  const MenuView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final NumberFormat currencyFormat = NumberFormat('#,###', 'id_ID');
+    final TextEditingController searchController = TextEditingController();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -109,7 +23,7 @@ class _FoodDrinkPageState extends State<FoodDrinkPage> {
           ),
         ),
         flexibleSpace: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [Colors.blue, Colors.blueAccent],
               begin: Alignment.topLeft,
@@ -119,7 +33,7 @@ class _FoodDrinkPageState extends State<FoodDrinkPage> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.shopping_cart, color: Colors.white),
+            icon: const FaIcon(FontAwesomeIcons.cartShopping, color: Colors.white),
             onPressed: () {},
           ),
         ],
@@ -128,26 +42,29 @@ class _FoodDrinkPageState extends State<FoodDrinkPage> {
         children: [
           // Search bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: TextField(
-              controller: _searchController,
+              controller: searchController,
               decoration: InputDecoration(
                 hintText: 'Cari makanan atau minuman...',
-                prefixIcon: Icon(Icons.search, color: Colors.blue),
+                prefixIcon: const FaIcon(FontAwesomeIcons.magnifyingGlass, color: Colors.blue),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
                 fillColor: Colors.grey[100],
-                contentPadding: EdgeInsets.symmetric(vertical: 0),
-                hintStyle: TextStyle(color: Colors.grey),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                hintStyle: const TextStyle(color: Colors.grey),
               ),
+              onChanged: (value) {
+                controller.filterMenu(searchQuery: value);
+              },
             ),
           ),
           // Filter bar
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -159,36 +76,114 @@ class _FoodDrinkPageState extends State<FoodDrinkPage> {
           ),
           // Grid untuk menampilkan item dari API
           Expanded(
-            child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: fetchItems(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator(color: Colors.blue));
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.red)));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('No items found', style: TextStyle(color: Colors.grey)));
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await controller.fetchMenu(isRefresh: true);
+              },
+              color: Colors.blueAccent,
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(
+                      child: CircularProgressIndicator(color: Colors.blue));
                 }
-
-                _allItems = snapshot.data!;
-                if (_filteredItems.isEmpty && _searchQuery.isEmpty) {
-                  _filteredItems = _allItems.where((item) => item['availability'] == 'READY').toList();
+                if (controller.hasConnectionError.value) {
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.3,
+                          ),
+                          const FaIcon(
+                            FontAwesomeIcons.globe,
+                            size: 150,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Periksa Koneksi Internet Anda',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Tidak dapat terhubung ke server. Silakan coba lagi.',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              controller.fetchMenu(isRefresh: true);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 12),
+                            ),
+                            child: Text(
+                              'Coba Lagi',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+                if (controller.filteredMenuList.isEmpty) {
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.3,
+                          ),
+                          Text(
+                            'Tidak ada item yang tersedia',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 }
 
                 return GridView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.75,
+                    childAspectRatio: 0.6, // Mengurangi rasio untuk lebih banyak ruang teks
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                   ),
-                  itemCount: _filteredItems.length,
+                  itemCount: controller.filteredMenuList.length,
                   itemBuilder: (context, index) {
-                    final item = _filteredItems[index];
-                    return AnimatedScale(
-                      scale: 1.0,
-                      duration: Duration(milliseconds: 300),
+                    final item = controller.filteredMenuList[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Get.toNamed('/detail', arguments: {'id': item['id']});
+                      },
                       child: Card(
                         elevation: 5,
                         shape: RoundedRectangleBorder(
@@ -197,25 +192,27 @@ class _FoodDrinkPageState extends State<FoodDrinkPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Gambar produk
-                            Expanded(
+                            // Gambar produk dengan rasio 1:1
+                            AspectRatio(
+                              aspectRatio: 1 / 1,
                               child: ClipRRect(
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-                                child: Image.network(
-                                  item['image'],
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      color: Colors.grey[300],
-                                      child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
-                                    );
-                                  },
+                                borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(15)),
+                                child: Container(
+                                  color: Colors.grey[200],
+                                  child: const Center(
+                                    child: FaIcon(
+                                      FontAwesomeIcons.utensils,
+                                      size: 70, // Mengurangi ukuran ikon agar lebih proporsional
+                                      color: Colors.blueAccent,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
+                            // Konten teks dengan padding yang lebih kompak
                             Padding(
-                              padding: EdgeInsets.all(10),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Kurangi padding
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -224,68 +221,44 @@ class _FoodDrinkPageState extends State<FoodDrinkPage> {
                                     item['name'],
                                     style: GoogleFonts.poppins(
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 12,
+                                      fontSize: 11, // Kurangi font size
                                     ),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  SizedBox(height: 6),
-                                  // Harga dan diskon
-                                  Row(
-                                    children: [
-                                      Text(
-                                        'Rp. ${_currencyFormat.format(item['price'].toInt())}',
-                                        style: GoogleFonts.poppins(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.blueAccent,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                  //     SizedBox(width: 8),
-                                  //     Text(
-                                  //       'Rp${item['price'].toInt()}',
-                                  //       style: GoogleFonts.poppins(
-                                  //         decoration: TextDecoration.lineThrough,
-                                  //         color: Colors.grey,
-                                  //         fontSize: 14,
-                                  //       ),
-                                  //     ),
-                                    ],
+                                  const SizedBox(height: 2), // Kurangi spacing
+                                  // Harga
+                                  Text(
+                                    'Rp ${currencyFormat.format(item['price'].toInt())}',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blueAccent,
+                                      fontSize: 12, // Kurangi font size
+                                    ),
                                   ),
-                                  SizedBox(height: 6),
-                                  // // Label diskon
-                                  // Container(
-                                  //   padding: EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                                  //   decoration: BoxDecoration(
-                                  //     color: Colors.blue[50],
-                                  //     borderRadius: BorderRadius.circular(10),
-                                  //   ),
-                                  //   child: Text(
-                                  //     'Diskon ${(100 - (item['discountPrice'] / item['price'] * 100)).toInt()}%',
-                                  //     style: GoogleFonts.poppins(
-                                  //       color: Colors.blueAccent,
-                                  //       fontSize: 10,
-                                  //     ),
-                                  //   ),
-                                  // ),
-                                  // SizedBox(height: 6),
-                                  // Rating dan lokasi
+                                  const SizedBox(height: 2), // Kurangi spacing
+                                  // Rating dan jumlah terjual
                                   Row(
                                     children: [
-                                      Icon(Icons.star, color: Colors.yellow[700], size: 16),
-                                      SizedBox(width: 4),
+                                      const FaIcon(
+                                        FontAwesomeIcons.star,
+                                        color: Colors.yellow,
+                                        size: 14, // Kurangi ukuran ikon
+                                      ),
+                                      const SizedBox(width: 4),
                                       Text(
                                         '${item['rating']}, ${item['sold']}',
-                                        style: GoogleFonts.poppins(fontSize: 12),
+                                        style: GoogleFonts.poppins(fontSize: 10), // Kurangi font size
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 2), // Kurangi spacing
+                                  // Kategori
                                   Text(
                                     item['category'],
                                     style: GoogleFonts.poppins(
                                       color: Colors.grey,
-                                      fontSize: 11,
+                                      fontSize: 9, // Kurangi font size
                                     ),
                                   ),
                                 ],
@@ -297,7 +270,7 @@ class _FoodDrinkPageState extends State<FoodDrinkPage> {
                     );
                   },
                 );
-              },
+              }),
             ),
           ),
         ],
@@ -305,32 +278,31 @@ class _FoodDrinkPageState extends State<FoodDrinkPage> {
     );
   }
 
-  // Widget untuk filter chip dengan desain modern
   Widget _buildFilterChip(String category) {
-    return FilterChip(
-      label: Text(
-        category,
-        style: GoogleFonts.poppins(
-          color: _selectedCategory == category ? Colors.white : Colors.black,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      selected: _selectedCategory == category,
-      onSelected: (bool value) {
-        if (value) {
-          setState(() {
-            _selectedCategory = category;
-            _filterItems();
-          });
-        }
-      },
-      backgroundColor: Colors.grey[200],
-      selectedColor: Colors.blueAccent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      elevation: 2,
-    );
+    return Obx(() => FilterChip(
+          label: Text(
+            category,
+            style: GoogleFonts.poppins(
+              color: controller.selectedCategory.value == category
+                  ? Colors.white
+                  : Colors.black,
+              fontWeight: FontWeight.w500,
+              fontSize: 12, // Kurangi font size agar lebih kompak
+            ),
+          ),
+          selected: controller.selectedCategory.value == category,
+          onSelected: (bool value) {
+            if (value) {
+              controller.filterMenu(category: category);
+            }
+          },
+          backgroundColor: Colors.grey[200],
+          selectedColor: Colors.blueAccent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Kurangi padding
+          elevation: 2,
+        ));
   }
 }
