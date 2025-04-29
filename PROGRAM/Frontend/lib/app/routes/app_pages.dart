@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/detail/bindings/detail_binding.dart';
+import '../modules/detail/views/detail_view.dart';
 import '../modules/menu/bindings/menu_binding.dart';
 import '../modules/menu/views/menu_view.dart';
 
@@ -13,8 +15,13 @@ class AppPages {
   static final routes = [
     GetPage(
       name: _Paths.MENU,
-      page: () =>  MenuView(),
+      page: () => MenuView(),
       binding: MenuBinding(),
+    ),
+    GetPage(
+      name: _Paths.DETAIL,
+      page: () => const DetailView(),
+      binding: DetailBinding(),
     ),
   ];
 }
