@@ -1,6 +1,7 @@
 // BUat FUngsi Post
 import { NextRequest, NextResponse } from "next/server";
 import { getResponseNotFound, prisma, setBcrypt } from "../general";
+import { verifyJWT } from "@/utils/verifyJWT";
 
 // Buat API POST REQUEST UNTUK CREATE DATA
 export const POST = async (request: NextRequest) => {
@@ -100,6 +101,11 @@ export const POST = async (request: NextRequest) => {
 
 //    Buat Get API tampilkan semua data user
 export const GET = async (request: NextRequest) => {
+      // Verifikasi token
+  const decoded: any = await verifyJWT(request);
+
+  // Jika gagal, decoded akan jadi Response (dari middleware)
+  if (decoded instanceof Response) return decoded;
   // ambil data dari database
   const view = await prisma.tb_user.findMany({
     // where:{

@@ -3,12 +3,19 @@ import { prisma, setBcrypt } from "../../general";
 import path from "path";
 import { existsSync } from "fs";
 import { unlink, writeFile } from "fs/promises";
+import { verifyJWT } from "@/utils/verifyJWT";
 
 
 export async function PATCH(
   req: NextRequest,
   props: { params: Promise<{ idUser: string }> }
 ) {
+
+          // Verifikasi token
+  const decoded: any = await verifyJWT(req);
+
+  // Jika gagal, decoded akan jadi Response (dari middleware)
+  if (decoded instanceof Response) return decoded;
   try {
     // Ambil semua data dari form
     const formData = await req.formData();
