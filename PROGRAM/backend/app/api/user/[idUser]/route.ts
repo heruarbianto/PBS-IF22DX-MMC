@@ -1,11 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, setBcrypt } from "../../general";
+import { getResponseNotFound, prisma, setBcrypt } from "../../general";
 import path from "path";
 import { existsSync } from "fs";
 import { unlink, writeFile } from "fs/promises";
 import { verifyJWT } from "@/utils/verifyJWT";
 
+// Buat service get buat detail data
+export const GET = async(request:NextRequest, props:{params: Promise<{idUser:string}>}) => {
+  
+          // Verifikasi token
+          const decoded: any = await verifyJWT(request);
 
+          // Jika gagal, decoded akan jadi Response (dari middleware)
+          if (decoded instanceof Response) return decoded;
+    try{
+      const params = await props.params;
+      
+    // Cek data username tersedia/tidak
+    const cek = await prisma.tb_user.findUnique({
+      where:{
+        id: Number(params.idUser)
+      },
+    });
+  
+    // BUat kondisi jika data ditemukan
+    if(!cek){
+      // tampilkan respon api
+      return getResponseNotFound();
+  }
+  
+  return NextResponse.json(
+    {
+        metadata: {
+          error: 0,
+          message: "Data Ditampilkan!!!",
+        },
+      dataUser:cek,
+    },{
+        status:200
+    })
+  } catch(e:any){
+    return NextResponse.json(
+      {
+        metadata: {
+          error: 1,
+          message: "ID Parameter Harus Angka",
+        },
+      },{
+          status:400
+      })
+  }
+  }
+  
 export async function PATCH(
   req: NextRequest,
   props: { params: Promise<{ idUser: string }> }
