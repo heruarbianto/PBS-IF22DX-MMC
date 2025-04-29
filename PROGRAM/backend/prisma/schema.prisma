@@ -79,6 +79,7 @@ model tb_user {
   email        String         @db.VarChar(50)
   alamat       String         @db.Text
   password     String         @db.Text
+  imageProfile String         @db.Text @default("")
   role         tb_user_role   @default(PELANGGAN)
   tb_keranjang tb_keranjang[]
   tb_pemesanan tb_pemesanan[]
