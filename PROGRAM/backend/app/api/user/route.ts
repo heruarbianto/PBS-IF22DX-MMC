@@ -1,6 +1,6 @@
 // BUat FUngsi Post
 import { NextRequest, NextResponse } from "next/server";
-import { prisma, setBcrypt } from "../general";
+import { getResponseNotFound, prisma, setBcrypt } from "../general";
 
 
 // Buat API POST REQUEST UNTUK CREATE DATA
@@ -79,3 +79,34 @@ export const POST = async (request:NextRequest)=>{
      }
    },{status:201})
    }
+
+
+
+//    Buat Get API tampilkan semua data user
+export const GET = async (request:NextRequest) => {
+    // ambil data dari database
+  const view = await prisma.tb_user.findMany({
+    // where:{
+    //   username: "..."
+    // }
+  });
+
+// jika data tidak ada 
+if(view.length == 0){
+    // tampilkan respon api
+    return getResponseNotFound();
+}
+// tampilkan respon api
+  return NextResponse.json(
+    {
+      metadata: {
+        error: 0,
+        message: null,
+      },
+      dataUser: view,
+    },
+    {
+      status: 200,
+    }
+  );
+};
