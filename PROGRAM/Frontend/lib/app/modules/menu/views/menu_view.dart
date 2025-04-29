@@ -47,7 +47,11 @@ class MenuView extends GetView<MenusController> {
               controller: searchController,
               decoration: InputDecoration(
                 hintText: 'Cari makanan atau minuman...',
-                prefixIcon: const FaIcon(FontAwesomeIcons.magnifyingGlass, color: Colors.blue),
+                prefixIcon: const Icon(
+                  Icons.search, // Mengganti ke ikon bawaan Flutter agar lebih pas
+                  color: Colors.blue,
+                  size: 24, // Menyesuaikan ukuran
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -97,7 +101,7 @@ class MenuView extends GetView<MenusController> {
                             height: MediaQuery.of(context).size.height * 0.3,
                           ),
                           const FaIcon(
-                            FontAwesomeIcons.globe,
+                            FontAwesomeIcons.globe, // Mengganti ke ikon yang lebih tepat
                             size: 150,
                             color: Colors.grey,
                           ),
@@ -173,7 +177,7 @@ class MenuView extends GetView<MenusController> {
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.6, // Mengurangi rasio untuk lebih banyak ruang teks
+                    childAspectRatio: 0.6,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                   ),
@@ -198,21 +202,40 @@ class MenuView extends GetView<MenusController> {
                               child: ClipRRect(
                                 borderRadius: const BorderRadius.vertical(
                                     top: Radius.circular(15)),
-                                child: Container(
-                                  color: Colors.grey[200],
-                                  child: const Center(
-                                    child: FaIcon(
-                                      FontAwesomeIcons.utensils,
-                                      size: 70, // Mengurangi ukuran ikon agar lebih proporsional
-                                      color: Colors.blueAccent,
-                                    ),
-                                  ),
-                                ),
+                                child: item['image'] != null && item['image'].toString().isNotEmpty
+                                    ? Image.network(
+                                        item['image'],
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Container(
+                                            color: Colors.grey[200],
+                                            child: const Center(
+                                              child: FaIcon(
+                                                FontAwesomeIcons.utensils,
+                                                size: 70,
+                                                color: Colors.blueAccent,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    : Container(
+                                        color: Colors.grey[200],
+                                        child: const Center(
+                                          child: FaIcon(
+                                            FontAwesomeIcons.utensils,
+                                            size: 70,
+                                            color: Colors.blueAccent,
+                                          ),
+                                        ),
+                                      ),
                               ),
                             ),
                             // Konten teks dengan padding yang lebih kompak
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Kurangi padding
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -220,45 +243,43 @@ class MenuView extends GetView<MenusController> {
                                   Text(
                                     item['name'],
                                     style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 11, // Kurangi font size
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 14,
                                     ),
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 2), // Kurangi spacing
                                   // Harga
                                   Text(
                                     'Rp ${currencyFormat.format(item['price'].toInt())}',
                                     style: GoogleFonts.poppins(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.blueAccent,
-                                      fontSize: 12, // Kurangi font size
+                                      fontSize: 14,
                                     ),
                                   ),
-                                  const SizedBox(height: 2), // Kurangi spacing
                                   // Rating dan jumlah terjual
                                   Row(
                                     children: [
                                       const FaIcon(
-                                        FontAwesomeIcons.star,
+                                        FontAwesomeIcons.solidStar,
                                         color: Colors.yellow,
-                                        size: 14, // Kurangi ukuran ikon
+                                        size: 14,
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
                                         '${item['rating']}, ${item['sold']}',
-                                        style: GoogleFonts.poppins(fontSize: 10), // Kurangi font size
+                                        style: GoogleFonts.poppins(fontSize: 12),
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 2), // Kurangi spacing
+                                  const SizedBox(height: 2),
                                   // Kategori
                                   Text(
                                     item['category'],
                                     style: GoogleFonts.poppins(
                                       color: Colors.grey,
-                                      fontSize: 9, // Kurangi font size
+                                      fontSize: 10,
                                     ),
                                   ),
                                 ],
@@ -287,7 +308,7 @@ class MenuView extends GetView<MenusController> {
                   ? Colors.white
                   : Colors.black,
               fontWeight: FontWeight.w500,
-              fontSize: 12, // Kurangi font size agar lebih kompak
+              fontSize: 12,
             ),
           ),
           selected: controller.selectedCategory.value == category,
@@ -301,7 +322,7 @@ class MenuView extends GetView<MenusController> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), // Kurangi padding
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           elevation: 2,
         ));
   }

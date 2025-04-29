@@ -33,7 +33,7 @@ class MenusController extends GetxController {
               'price': item['harga'],
               'rating': 4.5, // Dummy data
               'sold': '50+ terjual', // Dummy data
-              'image': 'https://canden.bantulkab.go.id/assets/files/artikel/sedang_1515377400Jajan_Pasar_in_Jakarta.JPG', // Link gambar yang sama
+              'image': 'http://192.168.18.8:1220${item['gambar_menu']}', // Link gambar yang sama
               'category': item['kategori'],
               'availability': item['ketersediaan'],
             };

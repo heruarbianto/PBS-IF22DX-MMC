@@ -17,7 +17,7 @@ class DetailView extends GetView<DetailController> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: Colors.black), // Ikon kembali dari FontAwesome
+          icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: Colors.black),
           onPressed: () => Get.back(),
         ),
         title: Text(
@@ -30,13 +30,13 @@ class DetailView extends GetView<DetailController> {
         ),
         actions: [
           IconButton(
-            icon: const FaIcon(FontAwesomeIcons.heart, color: Colors.black), // Ikon favorit dari FontAwesome
+            icon: const FaIcon(FontAwesomeIcons.heart, color: Colors.black),
             onPressed: () {
               Get.snackbar('Favorit', 'Ditambahkan ke favorit!');
             },
           ),
           IconButton(
-            icon: const FaIcon(FontAwesomeIcons.share, color: Colors.black), // Ikon share dari FontAwesome
+            icon: const FaIcon(FontAwesomeIcons.share, color: Colors.black),
             onPressed: () {
               Get.snackbar('Bagikan', 'Fitur bagikan belum tersedia.');
             },
@@ -62,16 +62,39 @@ class DetailView extends GetView<DetailController> {
                   Container(
                     height: 350,
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                    ),
-                    child: const Center(
-                      child: FaIcon(
-                        FontAwesomeIcons.utensils, // Ikon makanan dari FontAwesome
-                        size: 150,
-                        color: Colors.blueAccent,
-                      ),
-                    ),
+                    child: item['image'] != null && item['image'].toString().isNotEmpty
+                        ? Image.network(
+                            item['image'],
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: 350,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                ),
+                                child: const Center(
+                                  child: FaIcon(
+                                    FontAwesomeIcons.utensils,
+                                    size: 150,
+                                    color: Colors.blueAccent,
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                            ),
+                            child: const Center(
+                              child: FaIcon(
+                                FontAwesomeIcons.utensils,
+                                size: 150,
+                                color: Colors.blueAccent,
+                              ),
+                            ),
+                          ),
                   ),
                   const SizedBox(height: 16),
                   // Informasi utama
@@ -113,7 +136,7 @@ class DetailView extends GetView<DetailController> {
                         // Rating dan terjual
                         Row(
                           children: [
-                            const FaIcon(FontAwesomeIcons.star, color: Colors.blueAccent, size: 20), // Ikon rating dari FontAwesome
+                            const FaIcon(FontAwesomeIcons.solidStar, color: Colors.yellow, size: 20),
                             const SizedBox(width: 4),
                             Text(
                               '${item['rating']} (${item['sold']} terjual)',
@@ -128,7 +151,7 @@ class DetailView extends GetView<DetailController> {
                         // Kategori
                         Row(
                           children: [
-                            const FaIcon(FontAwesomeIcons.tag, color: Colors.blueAccent, size: 20), // Ikon kategori dari FontAwesome
+                            const FaIcon(FontAwesomeIcons.tag, color: Colors.blueAccent, size: 20),
                             const SizedBox(width: 4),
                             Text(
                               item['category'],
@@ -140,20 +163,6 @@ class DetailView extends GetView<DetailController> {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        // Pengiriman
-                        Row(
-                          children: [
-                            const FaIcon(FontAwesomeIcons.truck, color: Colors.blueAccent, size: 20), // Ikon pengiriman dari FontAwesome
-                            const SizedBox(width: 4),
-                            Text(
-                              'Gratis Ongkir (Rp12.000-Rp22.000) • Est. tiba 3 - 8 May',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),
