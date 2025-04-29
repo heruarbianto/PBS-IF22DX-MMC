@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from '@prisma/client'
 import path from "path";
 import fs  from "fs";
-import { genSaltSync, hashSync } from "bcrypt-ts";
+import { genSaltSync, hashSync, } from "bcrypt-ts";
 
 
  export const prisma = new PrismaClient()
