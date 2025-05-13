@@ -8,7 +8,7 @@ class LoginView extends GetView<AuthController> {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController emailController = TextEditingController();
+    final TextEditingController loginController = TextEditingController();
     final TextEditingController passwordController = TextEditingController();
 
     return Scaffold(
@@ -52,11 +52,12 @@ class LoginView extends GetView<AuthController> {
               ),
             ),
             const SizedBox(height: 24),
+            // Field Username/Email
             TextField(
-              controller: emailController,
+              controller: loginController,
               decoration: InputDecoration(
-                hintText: 'Email',
-                prefixIcon: const Icon(Icons.email, color: Colors.blue),
+                hintText: 'Username atau Email',
+                prefixIcon: const Icon(Icons.person, color: Colors.blue),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -66,9 +67,9 @@ class LoginView extends GetView<AuthController> {
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
                 hintStyle: const TextStyle(color: Colors.grey),
               ),
-              keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 16),
+            // Field Password
             TextField(
               controller: passwordController,
               decoration: InputDecoration(
@@ -86,6 +87,7 @@ class LoginView extends GetView<AuthController> {
               obscureText: true,
             ),
             const SizedBox(height: 16),
+            // Teks Lupa Password
             Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(
@@ -103,14 +105,16 @@ class LoginView extends GetView<AuthController> {
               ),
             ),
             const SizedBox(height: 24),
+            // Tombol Login
             Obx(() => SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: controller.isLoading.value
                         ? null
                         : () {
+                            print('Login button pressed');
                             controller.login(
-                              emailController.text,
+                              loginController.text,
                               passwordController.text,
                             );
                           },
@@ -141,6 +145,7 @@ class LoginView extends GetView<AuthController> {
                   ),
                 )),
             const SizedBox(height: 16),
+            // Teks Belum punya akun? Register
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

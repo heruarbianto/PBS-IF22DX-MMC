@@ -14,7 +14,7 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.REGISTER; // Ubah initial route ke LOGIN
+  static const INITIAL = Routes.MENU; // Ubah initial route ke LOGIN
 
   static final routes = [
     // Route untuk halaman autentikasi

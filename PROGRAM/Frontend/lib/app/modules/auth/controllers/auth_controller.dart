@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthController extends GetxController {
   final isLoading = false.obs;
@@ -14,30 +15,43 @@ class AuthController extends GetxController {
       body: jsonEncode(body),
     );
 
-    // Tangani redirect (308 Permanent Redirect)
     if (response.statusCode == 308) {
       print('Redirecting to: ${response.body}');
       final redirectUrl = response.body.startsWith('http')
           ? response.body
-          : 'http://192.168.18.8:1220${response.body}'; // Tambahkan base URL jika relatif
-      return _makeRequest(redirectUrl, body); // Rekursif untuk mengikuti redirect
+          : 'https://api.margataqwa.my.id${response.body}';
+      return _makeRequest(redirectUrl, body);
     }
 
     return response;
   }
 
-  Future<void> login(String email, String password) async {
-    if (email.isEmpty || password.isEmpty) {
-      Get.snackbar('Error', 'Email dan password tidak boleh kosong');
+  // Fungsi untuk menyimpan token
+  Future<void> _saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('jwt_token', token);
+    print('Token saved successfully: $token');
+  }
+
+  // Fungsi untuk memeriksa token (untuk debugging)
+  Future<void> _checkToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token');
+    print('Current token in SharedPreferences: $token');
+  }
+
+  Future<void> login(String loginValue, String password) async {
+    if (loginValue.isEmpty || password.isEmpty) {
+      Get.snackbar('Error', 'Username/email dan password wajib diisi');
       return;
     }
 
     isLoading.value = true;
 
-    const String apiUrl = 'http://192.168.18.8:1220/api/user/login';
+    const String apiUrl = 'https://api.margataqwa.my.id/api/user/login';
 
     final Map<String, dynamic> body = {
-      'emailValue': email,
+      'loginValue': loginValue,
       'passwordValue': password,
     };
 
@@ -50,6 +64,15 @@ class AuthController extends GetxController {
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
+        // Pastikan token ada di response
+        if (responseData.containsKey('token')) {
+          final String token = responseData['token'];
+          await _saveToken(token); // Simpan token
+          await _checkToken(); // Verifikasi token tersimpan
+        } else {
+          print('Warning: No token found in response');
+        }
+
         Get.snackbar(
           'Sukses',
           responseData['metadata']['message'],
@@ -57,10 +80,38 @@ class AuthController extends GetxController {
           colorText: Colors.white,
         );
         Get.offAllNamed('/menu');
-      } else {
+      } else if (response.statusCode == 400) {
         Get.snackbar(
           'Error',
           responseData['metadata']['message'],
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      } else if (response.statusCode == 404) {
+        Get.snackbar(
+          'Error',
+          responseData['metadata']['message'],
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      } else if (response.statusCode == 401) {
+        Get.snackbar(
+          'Error',
+          responseData['metadata']['message'],
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      } else if (response.statusCode == 500) {
+        Get.snackbar(
+          'Error',
+          responseData['metadata']['message'],
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          'Error',
+          'Terjadi kesalahan: ${responseData['metadata']['message'] ?? 'Unknown error'}',
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
@@ -98,7 +149,7 @@ class AuthController extends GetxController {
 
     isLoading.value = true;
 
-    const String apiUrl = 'http://192.168.18.8:1220/api/user/';
+    const String apiUrl = 'https://api.margataqwa.my.id/api/user/';
 
     final Map<String, dynamic> body = {
       'namaValue': name,
@@ -169,7 +220,7 @@ class AuthController extends GetxController {
 
     isLoading.value = true;
 
-    const String apiUrl = 'http://192.168.18.8:1220/api/user/forgot-password';
+    const String apiUrl = 'https://api.margataqwa.my.id/api/user/forgot-password';
 
     final Map<String, dynamic> body = {
       'emailValue': email,
