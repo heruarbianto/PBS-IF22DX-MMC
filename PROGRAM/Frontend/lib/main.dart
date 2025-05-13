@@ -7,17 +7,14 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Makanan & Minuman',
-      initialRoute: AppPages.INITIAL, // Halaman awal diatur ke menu
-      getPages: AppPages.routes, // Daftar halaman dari app_pages.dart
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      title: 'Flutter App',
+      initialRoute: AppPages.INITIAL,
+      getPages: AppPages.routes,
     );
   }
 }
