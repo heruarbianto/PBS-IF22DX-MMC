@@ -71,6 +71,15 @@ export async function PATCH(
     const ketersediaan = formData.get("ketersediaan") as string | null;
     const file = formData.get("gambar_menu") as File | null;
 
+
+      // Validasi wajib isi (kecuali gambar_menu)
+  if (!nama || !deskripsi || !harga || !kategori || !ketersediaan || !file) {
+    return NextResponse.json(
+      { error: "Semua field wajib diisi" },
+      { status: 400 }
+    );
+  }
+
     // Validasi kategori
     let kategoriUpper: string | null = null;
     if (kategori) {
