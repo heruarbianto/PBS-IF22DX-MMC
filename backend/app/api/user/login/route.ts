@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../general";
 import {compareSync} from 'bcrypt-ts';
 import jwt from 'jsonwebtoken';
+import { role } from "@/app/generated/prisma";
 
 // SECRET KEY buat tanda tangan JWT
 const JWT_SECRET = process.env.JWT_SECRET || "secret_jangan_di_produksi";
@@ -48,7 +49,8 @@ export const POST = async (request: NextRequest) => {
       {
         id: user.id,
         username: user.username,
-        email: user.email
+        email: user.email,
+        role: user.role
       },
       JWT_SECRET,
       { expiresIn: '7d' } // token valid selama 7 hari
