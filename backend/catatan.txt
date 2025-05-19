@@ -24,3 +24,6 @@ INSERT INTO `tb_menu` (`id`, `nama`, `deskripsi`, `harga`, `kategori`, `gambar_m
 //username admin, pw 123
 INSERT INTO `tb_user` (`id`, `namaLengkap`, `username`, `noHp`, `email`, `alamat`, `password`, `role`, `imageProfile`) VALUES
 (2, 'JULIUS JOHN C', 'admin', '08999999899', 'julius@emal.com', 'natar', '$2b$10$OkH1uQZzSCm3ZsamcrAT/eVAT7oGUGBxoj/vH7ViWepgn.C/6BcBe', 'ADMIN', '');
+
+
+tesststststs
