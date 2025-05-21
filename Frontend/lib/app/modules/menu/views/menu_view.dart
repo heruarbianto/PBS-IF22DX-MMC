@@ -34,7 +34,9 @@ class MenuView extends GetView<MenusController> {
         actions: [
           IconButton(
             icon: const FaIcon(FontAwesomeIcons.cartShopping, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              controller.onCartClicked(); // Memanggil fungsi onCartClicked dari controller
+            },
           ),
         ],
       ),
@@ -48,9 +50,9 @@ class MenuView extends GetView<MenusController> {
               decoration: InputDecoration(
                 hintText: 'Cari makanan atau minuman...',
                 prefixIcon: const Icon(
-                  Icons.search, // Mengganti ke ikon bawaan Flutter agar lebih pas
+                  Icons.search,
                   color: Colors.blue,
-                  size: 24, // Menyesuaikan ukuran
+                  size: 24,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
@@ -86,215 +88,266 @@ class MenuView extends GetView<MenusController> {
               },
               color: Colors.blueAccent,
               child: Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(
-                      child: CircularProgressIndicator(color: Colors.blue));
+                switch (controller.selectedIndex.value) {
+                  case 0:
+                    return _buildHomeTab(context, currencyFormat);
+                  case 1:
+                    return _buildTransactionTab();
+                  case 2:
+                    return _buildProfileTab();
+                  default:
+                    return _buildHomeTab(context, currencyFormat);
                 }
-                if (controller.hasConnectionError.value) {
-                  return SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.3,
-                          ),
-                          const FaIcon(
-                            FontAwesomeIcons.globe, // Mengganti ke ikon yang lebih tepat
-                            size: 150,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Periksa Koneksi Internet Anda',
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Tidak dapat terhubung ke server. Silakan coba lagi.',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              controller.fetchMenu(isRefresh: true);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blueAccent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 24, vertical: 12),
-                            ),
-                            child: Text(
-                              'Coba Lagi',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-                if (controller.filteredMenuList.isEmpty) {
-                  return SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.3,
-                          ),
-                          Text(
-                            'Tidak ada item yang tersedia',
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-
-                return GridView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.6,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                  ),
-                  itemCount: controller.filteredMenuList.length,
-                  itemBuilder: (context, index) {
-                    final item = controller.filteredMenuList[index];
-                    return GestureDetector(
-                      onTap: () {
-                        Get.toNamed('/detail', arguments: {'id': item['id']});
-                      },
-                      child: Card(
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Gambar produk dengan rasio 1:1
-                            AspectRatio(
-                              aspectRatio: 1 / 1,
-                              child: ClipRRect(
-                                borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(15)),
-                                child: item['image'] != null && item['image'].toString().isNotEmpty
-                                    ? Image.network(
-                                        item['image'],
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return Container(
-                                            color: Colors.grey[200],
-                                            child: const Center(
-                                              child: FaIcon(
-                                                FontAwesomeIcons.utensils,
-                                                size: 70,
-                                                color: Colors.blueAccent,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      )
-                                    : Container(
-                                        color: Colors.grey[200],
-                                        child: const Center(
-                                          child: FaIcon(
-                                            FontAwesomeIcons.utensils,
-                                            size: 70,
-                                            color: Colors.blueAccent,
-                                          ),
-                                        ),
-                                      ),
-                              ),
-                            ),
-                            // Konten teks dengan padding yang lebih kompak
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Nama produk
-                                  Text(
-                                    item['name'],
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 14,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  // Harga
-                                  Text(
-                                    'Rp ${currencyFormat.format(item['price'].toInt())}',
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.blueAccent,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  // Rating dan jumlah terjual
-                                  Row(
-                                    children: [
-                                      const FaIcon(
-                                        FontAwesomeIcons.solidStar,
-                                        color: Colors.yellow,
-                                        size: 14,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${item['rating']}, ${item['sold']}',
-                                        style: GoogleFonts.poppins(fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 2),
-                                  // Kategori
-                                  Text(
-                                    item['category'],
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.grey,
-                                      fontSize: 10,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
               }),
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: Obx(() => BottomNavigationBar(
+            currentIndex: controller.selectedIndex.value,
+            onTap: (index) {
+              controller.changeTabIndex(index);
+            },
+            selectedItemColor: Colors.blueAccent,
+            unselectedItemColor: Colors.grey,
+            showUnselectedLabels: true,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.receipt),
+                label: 'Transaction',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
+          )),
+    );
+  }
+
+  Widget _buildHomeTab(BuildContext context, NumberFormat currencyFormat) {
+    if (controller.isLoading.value) {
+      return const Center(child: CircularProgressIndicator(color: Colors.blue));
+    }
+    if (controller.hasConnectionError.value) {
+      return SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.3,
+              ),
+              const FaIcon(
+                FontAwesomeIcons.globe,
+                size: 150,
+                color: Colors.grey,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Periksa Koneksi Internet Anda',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[800],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Tidak dapat terhubung ke server. Silakan coba lagi.',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  controller.fetchMenu(isRefresh: true);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+                child: Text(
+                  'Coba Lagi',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (controller.filteredMenuList.isEmpty) {
+      return SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.3,
+              ),
+              Text(
+                'Tidak ada item yang tersedia',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return GridView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.6,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: controller.filteredMenuList.length,
+      itemBuilder: (context, index) {
+        final item = controller.filteredMenuList[index];
+        return GestureDetector(
+          onTap: () {
+            Get.toNamed('/detail', arguments: {'id': item['id']});
+          },
+          child: Card(
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Gambar produk dengan rasio 1:1
+                AspectRatio(
+                  aspectRatio: 1 / 1,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                    child: item['image'] != null && item['image'].toString().isNotEmpty
+                        ? Image.network(
+                            item['image'],
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: Colors.grey[200],
+                                child: const Center(
+                                  child: FaIcon(
+                                    FontAwesomeIcons.utensils,
+                                    size: 70,
+                                    color: Colors.blueAccent,
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : Container(
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: FaIcon(
+                                FontAwesomeIcons.utensils,
+                                size: 70,
+                                color: Colors.blueAccent,
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
+                // Konten teks dengan padding yang lebih kompak
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Nama produk
+                      Text(
+                        item['name'],
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      // Harga
+                      Text(
+                        'Rp ${currencyFormat.format(item['price'].toInt())}',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueAccent,
+                          fontSize: 14,
+                        ),
+                      ),
+                      // Rating dan jumlah terjual
+                      Row(
+                        children: [
+                          const FaIcon(
+                            FontAwesomeIcons.solidStar,
+                            color: Colors.yellow,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${item['rating']}, ${item['sold']}',
+                            style: GoogleFonts.poppins(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      // Kategori
+                      Text(
+                        item['category'],
+                        style: GoogleFonts.poppins(
+                          color: Colors.grey,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTransactionTab() {
+    return Center(
+      child: Text(
+        'Halaman Transaction (Coming Soon)',
+        style: GoogleFonts.poppins(fontSize: 18, color: Colors.grey),
+      ),
+    );
+  }
+
+  Widget _buildProfileTab() {
+    return Center(
+      child: Text(
+        'Halaman Profile (Coming Soon)',
+        style: GoogleFonts.poppins(fontSize: 18, color: Colors.grey),
       ),
     );
   }
