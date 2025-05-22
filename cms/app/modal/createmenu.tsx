@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import { toast } from "sonner"; // Pastikan 'sonner' sudah terinstall
 
 export default function CreateMenu() {
   const [nama, setNama] = useState("");
@@ -12,40 +11,42 @@ export default function CreateMenu() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      setGambar(file);
-    } else {
-      toast.error("File harus berupa gambar (jpg/png/jpeg).");
-      e.target.value = "";
-      setGambar(null);
+    if (file) {
+      if (file.type.startsWith("image/")) {
+        setGambar(file);
+      } else {
+        alert("Please select an image file only.");
+        e.target.value = "";
+        setGambar(null);
+      }
     }
   };
 
   const fetchsetMenu = async () => {
     if (!nama || !kategori || !ketersediaan || !harga || !deskripsi || !gambar) {
-      toast.error("Semua field harus diisi.");
+      alert("Semua field harus diisi.");
       return false;
     }
 
     if (Number(harga) <= 0) {
-      toast.error("Harga harus lebih dari 0.");
+      alert("Harga harus lebih dari 0");
       return false;
     }
 
     const kategoriLower = kategori.toLowerCase();
     if (kategoriLower !== "makanan" && kategoriLower !== "minuman") {
-      toast.error("Kategori harus Makanan atau Minuman.");
+      alert("Kategori harus makanan atau minuman");
       return false;
     }
 
     const ketersediaanUpper = ketersediaan.toUpperCase();
     if (ketersediaanUpper !== "READY" && ketersediaanUpper !== "SOLDOUT") {
-      toast.error("Ketersediaan harus READY atau SOLDOUT.");
+      alert("Ketersediaan harus READY atau SOLDOUT");
       return false;
     }
 
     if (!gambar.type.startsWith("image/")) {
-      toast.error("File harus berupa gambar.");
+      alert("File harus berupa gambar.");
       return false;
     }
 
@@ -64,16 +65,17 @@ export default function CreateMenu() {
       });
 
       if (response.ok) {
-        toast.success("Menu berhasil ditambahkan!");
+        const data = await response.json();
+        alert("Menu berhasil ditambahkan!");
         return true;
       } else {
         const errorData = await response.json();
-        toast.error("Gagal menambahkan menu: " + (errorData.message || "Unknown error"));
+        alert("Gagal menambahkan menu: " + (errorData.message || "Unknown error"));
         return false;
       }
     } catch (error) {
-      console.error("Error saat mengirim data:", error);
-      toast.error("Terjadi kesalahan saat menghubungi server.");
+      alert("Terjadi kesalahan jaringan.");
+      console.error(error);
       return false;
     }
   };
@@ -88,19 +90,16 @@ export default function CreateMenu() {
       setHarga("");
       setDeskripsi("");
       setGambar(null);
-      setTimeout(() => {
-        window.location.assign("../dashboard");
-      }, 1000);
+      window.location.assign("../dashboard");
     }
   };
 
   return (
     <div className="tracking-wide mx-auto font-sans max-w-5xl">
       <form
-        onSubmit={handleSubmit}
         className="bg-white md:min-h-[600px] grid items-start grid-cols-1 md:grid-cols-2 gap-8"
+        onSubmit={handleSubmit}
       >
-        {/* Gambar */}
         <div className="h-full">
           <div className="p-4 relative h-full flex flex-col items-center justify-center gap-4">
             {gambar ? (
@@ -124,56 +123,89 @@ export default function CreateMenu() {
           </div>
         </div>
 
-        {/* Form */}
         <div className="bg-gradient-to-r from-sky-600 via-sky-600 to-sky-700 py-6 px-8 h-full">
-          <label htmlFor="nmMenu" className="text-white">Nama Menu</label>
-          <input
-            type="text"
-            id="nmMenu"
-            placeholder="Ayam Bakar Sambal"
-            value={nama}
-            onChange={(e) => setNama(e.target.value)}
-            className="w-full bg-gray-100 px-4 py-2 rounded-md text-lg font-semibold mb-2.5"
-            required
-          />
+          <div>
+            <label htmlFor="nmMenu" className="text-white">
+              Nama Menu
+            </label>
+            <input
+              type="text"
+              id="nmMenu"
+              placeholder="Ayam Bakar Sambal"
+              value={nama}
+              onChange={(e) => setNama(e.target.value)}
+              className="w-full bg-gray-100 px-4 py-2 rounded-md text-lg font-semibold mb-2.5"
+              required
+            />
+            <label htmlFor="ktMenu" className="text-white">
+              Kategori
+            </label>
+            <select
+              value={kategori}
+              id="ktMenu"
+              onChange={(e) => setKategori(e.target.value)}
+              className="w-full bg-gray-100 px-4 py-2 rounded-md text-sm"
+              required
+            >
+              <option value="MINUMAN">Minuman</option>
+              <option value="MAKANAN">Makanan</option>
+            </select>
+          </div>
 
-          <label htmlFor="ktMenu" className="text-white">Kategori</label>
-          <select
-            id="ktMenu"
-            value={kategori}
-            onChange={(e) => setKategori(e.target.value)}
-            className="w-full bg-gray-100 px-4 py-2 rounded-md text-sm"
-            required
-          >
-            <option value="MINUMAN">Minuman</option>
-            <option value="MAKANAN">Makanan</option>
-          </select>
+          <div className="flex flex-wrap justify-between mt-2.5">
+            <label htmlFor="harga" className="text-white">
+              Harga
+            </label>
+            <input
+              type="number"
+              id="harga"
+              placeholder="0"
+              value={harga}
+              onChange={(e) => setHarga(e.target.value)}
+              className="w-full bg-gray-100 px-4 py-2 rounded-md text-4xl text-gray-800"
+              required
+              min={1}
+            />
+          </div>
 
-          <label htmlFor="harga" className="text-white mt-4">Harga</label>
-          <input
-            type="number"
-            id="harga"
-            placeholder="0"
-            value={harga}
-            onChange={(e) => setHarga(e.target.value)}
-            className="w-full bg-gray-100 px-4 py-2 rounded-md text-4xl text-gray-800"
-            required
-            min={1}
-          />
+          <div>
+            <ul className="grid grid-cols-3 mt-2.5">
+              <li className="text-white text-base w-full py-3.5 px-2 text-center border-b-2 border-white">
+                Deskripsi
+              </li>
+            </ul>
+            <textarea
+              placeholder="Deskripsi"
+              value={deskripsi}
+              onChange={(e) => setDeskripsi(e.target.value)}
+              className="w-full bg-gray-100 px-4 py-2 rounded-md text-base mt-4 text-gray-800"
+              required
+            ></textarea>
+            <label htmlFor="ktersediaan" className="text-white mt-4">
+              Ketersediaan
+            </label>
+            <select
+              value={ketersediaan}
+              id="ktersediaan"
+              onChange={(e) => setKetersediaan(e.target.value)}
+              className="w-full bg-gray-100 px-4 py-2 rounded-md text-sm"
+              required
+            >
+              <option value="READY">Ready</option>
+              <option value="SOLDOUT">Sold out</option>
+            </select>
+          </div>
 
-          <label htmlFor="deskripsi" className="text-white mt-4">Deskripsi</label>
-          <textarea
-            id="deskripsi"
-            placeholder="Deskripsi menu..."
-            value={deskripsi}
-            onChange={(e) => setDeskripsi(e.target.value)}
-            className="w-full bg-gray-100 px-4 py-2 rounded-md text-base mt-2 text-gray-800"
-            required
-          />
-
-          <label htmlFor="ketersediaan" className="text-white mt-4">Ketersediaan</label>
-          <select
-            id="ketersediaan"
-            value={ketersediaan}
-            onChange={(e) => setKetersediaan(e.target.value)}
-            className="w-fu
+          <div className="flex flex-wrap gap-4 mt-8">
+            <button
+              type="submit"
+              className="min-w-[200px] px-4 py-3.5 bg-blue-800 hover:bg-blue-900 text-white text-base rounded"
+            >
+              Tambah Menu
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
