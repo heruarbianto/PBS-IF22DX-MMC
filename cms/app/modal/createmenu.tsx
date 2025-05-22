@@ -21,18 +21,46 @@ export default function CreateMenu() {
   };
 
   const fetchsetMenu = async () => {
+    // Validasi field kosong
     if (!nama || !kategori || !ketersediaan || !harga || !deskripsi || !gambar) {
       alert("Semua field harus diisi.");
       return false;
     }
 
+    // Validasi harga
+    if (Number(harga) <= 0) {
+      alert("Harga harus lebih dari 0");
+      return false;
+    }
+
+    // Validasi kategori
+    const kategoriLower = kategori.toLowerCase();
+    if (kategoriLower !== "makanan" && kategoriLower !== "minuman") {
+      alert("Kategori harus Makanan atau Minuman");
+      return false;
+    }
+
+    // Validasi ketersediaan
+    const ketersediaanUpper = ketersediaan.toUpperCase();
+    if (ketersediaanUpper !== "READY" && ketersediaanUpper !== "SOLDOUT") {
+      alert("Ketersediaan harus READY atau SOLDOUT");
+      return false;
+    }
+
+    // Validasi file image
+    if (!gambar.type.startsWith("image/")) {
+      alert("File harus berupa gambar.");
+      return false;
+    }
+
+    // Buat FormData untuk dikirim ke API
     const formData = new FormData();
     formData.append("file", gambar);
     formData.append("nama", nama);
     formData.append("deskripsi", deskripsi);
     formData.append("harga", harga);
-    formData.append("kategori", kategori.toLowerCase());
-    formData.append("ketersediaan", ketersediaan.toUpperCase());
+    formData.append("kategori", kategoriLower);
+    formData.append("ketersediaan", ketersediaanUpper);
 
     try {
       const response = await fetch("https://api.margataqwa.my.id/api/menu", {
@@ -75,7 +103,7 @@ export default function CreateMenu() {
         onSubmit={handleSubmit}
         className="bg-white md:min-h-[600px] grid items-start grid-cols-1 md:grid-cols-2 gap-8"
       >
-        {/* Bagian Kiri - Gambar */}
+        {/* Gambar */}
         <div className="h-full">
           <div className="p-4 relative h-full flex flex-col items-center justify-center gap-4">
             {gambar ? (
@@ -99,7 +127,7 @@ export default function CreateMenu() {
           </div>
         </div>
 
-        {/* Bagian Kanan - Form */}
+        {/* Form */}
         <div className="bg-gradient-to-r from-sky-600 via-sky-600 to-sky-700 py-6 px-8 h-full">
           <label htmlFor="nmMenu" className="text-white">Nama Menu</label>
           <input
