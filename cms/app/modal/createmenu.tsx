@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { toast } from "sonner"; // Pastikan 'sonner' sudah terinstall
 
 export default function CreateMenu() {
   const [nama, setNama] = useState("");
@@ -14,46 +15,40 @@ export default function CreateMenu() {
     if (file && file.type.startsWith("image/")) {
       setGambar(file);
     } else {
-      alert("File harus berupa gambar (jpg/png/jpeg).");
+      toast.error("File harus berupa gambar (jpg/png/jpeg).");
       e.target.value = "";
       setGambar(null);
     }
   };
 
   const fetchsetMenu = async () => {
-    // Validasi field kosong
     if (!nama || !kategori || !ketersediaan || !harga || !deskripsi || !gambar) {
-      alert("Semua field harus diisi.");
+      toast.error("Semua field harus diisi.");
       return false;
     }
 
-    // Validasi harga
     if (Number(harga) <= 0) {
-      alert("Harga harus lebih dari 0");
+      toast.error("Harga harus lebih dari 0.");
       return false;
     }
 
-    // Validasi kategori
     const kategoriLower = kategori.toLowerCase();
     if (kategoriLower !== "makanan" && kategoriLower !== "minuman") {
-      alert("Kategori harus Makanan atau Minuman");
+      toast.error("Kategori harus Makanan atau Minuman.");
       return false;
     }
 
-    // Validasi ketersediaan
     const ketersediaanUpper = ketersediaan.toUpperCase();
     if (ketersediaanUpper !== "READY" && ketersediaanUpper !== "SOLDOUT") {
-      alert("Ketersediaan harus READY atau SOLDOUT");
+      toast.error("Ketersediaan harus READY atau SOLDOUT.");
       return false;
     }
 
-    // Validasi file image
     if (!gambar.type.startsWith("image/")) {
-      alert("File harus berupa gambar.");
+      toast.error("File harus berupa gambar.");
       return false;
     }
 
-    // Buat FormData untuk dikirim ke API
     const formData = new FormData();
     formData.append("file", gambar);
     formData.append("nama", nama);
@@ -69,16 +64,16 @@ export default function CreateMenu() {
       });
 
       if (response.ok) {
-        alert("Menu berhasil ditambahkan!");
+        toast.success("Menu berhasil ditambahkan!");
         return true;
       } else {
         const errorData = await response.json();
-        alert("Gagal menambahkan menu: " + (errorData.message || "Unknown error"));
+        toast.error("Gagal menambahkan menu: " + (errorData.message || "Unknown error"));
         return false;
       }
     } catch (error) {
       console.error("Error saat mengirim data:", error);
-      alert("Terjadi kesalahan saat menghubungi server.");
+      toast.error("Terjadi kesalahan saat menghubungi server.");
       return false;
     }
   };
@@ -93,7 +88,9 @@ export default function CreateMenu() {
       setHarga("");
       setDeskripsi("");
       setGambar(null);
-      window.location.assign("../dashboard");
+      setTimeout(() => {
+        window.location.assign("../dashboard");
+      }, 1000);
     }
   };
 
@@ -179,21 +176,4 @@ export default function CreateMenu() {
             id="ketersediaan"
             value={ketersediaan}
             onChange={(e) => setKetersediaan(e.target.value)}
-            className="w-full bg-gray-100 px-4 py-2 rounded-md text-sm"
-            required
-          >
-            <option value="READY">Ready</option>
-            <option value="SOLDOUT">Sold Out</option>
-          </select>
-
-          <button
-            type="submit"
-            className="mt-8 min-w-[200px] px-4 py-3.5 bg-blue-800 hover:bg-blue-900 text-white text-base rounded"
-          >
-            Tambah Menu
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-}
+            className="w-fu
