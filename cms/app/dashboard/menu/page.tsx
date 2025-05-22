@@ -4,7 +4,7 @@ import useSWR from "swr";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faPlus, faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 // import EditMenu from "../../modal/editMenu";
-// import TambahMenu from "../../modal/tambahMenu";
+import TambahMenu from "../../modal/createmenu";
 import { useRouter } from "next/navigation";
 import {jwtDecode} from "jwt-decode";
 
@@ -160,7 +160,7 @@ export default function MainPage() {
       )} */}
 
       {/* Modal Tambah */}
-      {/* {isBukaModalCreate && (
+      {isBukaModalCreate && (
         <div
           onClick={handleOverlayClick}
           className="fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto font-[sans-serif]"
@@ -169,10 +169,10 @@ export default function MainPage() {
             <div className="flex justify-end">
               <FontAwesomeIcon icon={faXmark} className="ml-auto mb-2 cursor-pointer" onClick={closeModal} />
             </div>
-            <TambahMenu />
+            <TambahMenu/>
           </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 }
