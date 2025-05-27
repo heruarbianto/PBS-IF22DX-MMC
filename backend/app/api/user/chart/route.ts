@@ -156,7 +156,22 @@ export const POST = async (request: NextRequest) => {
       const oldQuantity = cartItemFound.quantity;
       const menuPrice = cartItemFound.tb_menu.harga;
       const newQuantity = quantity + oldQuantity;
-
+      if(quantity <1){
+        await prisma.tb_keranjang.delete({
+          where: {
+            id: cartItemFound.id
+          }
+        })
+        return NextResponse.json(
+          {
+            metadata: {
+              error: 0,
+              message: "Item keranjang berhasil diperbarui.",
+            },
+          },
+          { status: 200 }
+        );
+      }
       await prisma.tb_keranjang.updateMany({
         where: {
           idUser,
@@ -164,8 +179,8 @@ export const POST = async (request: NextRequest) => {
           status: "FALSE",
         },
         data: {
-          quantity: newQuantity,
-          total: newQuantity * menuPrice,
+          quantity: quantity,
+          total: quantity * menuPrice,
         },
       });
 
@@ -179,6 +194,17 @@ export const POST = async (request: NextRequest) => {
         { status: 200 }
       );
     } else {
+      if(quantity <1){
+        return NextResponse.json(
+          {
+            metadata: {
+              error: 0,
+              message: "Quantity Tidak Boleh Kosong",
+            },
+          },
+          { status: 400 }
+        );
+      }
       await prisma.tb_keranjang.create({
         data: {
           idUser,
