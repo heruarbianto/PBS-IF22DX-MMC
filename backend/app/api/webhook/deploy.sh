@@ -6,6 +6,7 @@ echo "[Webhook] Pulling latest changes..."
 git pull origin master  # sesuaikan branch
 
 echo "[Webhook] Installing dependencies..."
+cd ~/PBS-IF22DX-MMC/backend
 npm install
 
 echo "[Webhook] Restarting PM2..."
