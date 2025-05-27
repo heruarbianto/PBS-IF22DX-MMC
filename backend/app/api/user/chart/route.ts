@@ -65,7 +65,7 @@ export const GET = async (request: NextRequest) => {
             error: 0,
             message: "Keranjang Masih Kosong, Silahkan Masukkan Menu Ke Keranjang!!!",
           },
-          dataUser: [],
+          dataChart:[],
         },
         {
           status: 200,
@@ -79,7 +79,7 @@ export const GET = async (request: NextRequest) => {
           error: 0,
           message: "Data Ditampilkan!!!",
         },
-        dataUser: keranjang,
+        dataChart: keranjang,
       },
       {
         status: 200,
