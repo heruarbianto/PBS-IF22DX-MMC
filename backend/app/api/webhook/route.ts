@@ -1,20 +1,32 @@
 // app/api/webhook/route.ts
+
 import { NextRequest } from 'next/server'
 import { exec } from 'child_process'
+import path from 'path'
 
 export async function POST(req: NextRequest) {
-  // Tidak ada verifikasi signature — siapa pun bisa trigger webhook ini
+  // Path absolut ke deploy.sh
+  const deployScriptPath = path.resolve(process.cwd(), 'deploy.sh')
 
   return new Promise((resolve) => {
-    exec('sh ./deploy.sh', (error, stdout, stderr) => {
+    exec(`bash "${deployScriptPath}"`, (error, stdout, stderr) => {
       if (error) {
-        console.error('Exec error:', error)
-        resolve(new Response('Deployment failed', { status: 500 }))
-      } else {
-        console.log('STDOUT:', stdout)
-        console.error('STDERR:', stderr)
-        resolve(new Response('Deployment triggered successfully', { status: 200 }))
+        console.error('🔴 Deployment error:', error.message)
+        console.error('⚠️ STDERR:', stderr)
+        return resolve(
+          new Response(`Deployment failed:\n${stderr || error.message}`, {
+            status: 500,
+          })
+        )
       }
+
+      console.log('✅ Deployment success')
+      console.log('📄 STDOUT:', stdout)
+      return resolve(
+        new Response('Deployment triggered successfully', {
+          status: 200,
+        })
+      )
     })
   })
 }
