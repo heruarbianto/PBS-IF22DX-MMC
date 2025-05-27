@@ -3,13 +3,13 @@ import { getResponseNotFound, prisma, setBcrypt } from "../../general";
 import path from "path";
 import { existsSync } from "fs";
 import { unlink, writeFile } from "fs/promises";
-import { verifyJWT } from "@/utils/verifyJWT";
+import { verifyAdminJWT, verifyJWT } from "@/utils/verifyJWT";
 
 // Buat service get buat detail data
 export const GET = async(request:NextRequest, props:{params: Promise<{idUser:string}>}) => {
   
           // Verifikasi token
-          const decoded: any = await verifyJWT(request);
+          const decoded: any = await verifyAdminJWT(request);
 
           // Jika gagal, decoded akan jadi Response (dari middleware)
           if (decoded instanceof Response) return decoded;
@@ -58,7 +58,7 @@ export async function PATCH(
 ) {
 
           // Verifikasi token
-  const decoded: any = await verifyJWT(req);
+  const decoded: any = await verifyAdminJWT(req);
 
   // Jika gagal, decoded akan jadi Response (dari middleware)
   if (decoded instanceof Response) return decoded;
