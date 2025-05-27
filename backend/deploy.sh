@@ -10,4 +10,4 @@ cd ~/PBS-IF22DX-MMC/backend
 npm install
 
 echo "[Webhook] Restarting PM2..."
-pm2 restart next-dev  # sesuaikan nama PM2 processtesss
+pm2 restart next-dev  # sesuaikan nama PM2 tes update
