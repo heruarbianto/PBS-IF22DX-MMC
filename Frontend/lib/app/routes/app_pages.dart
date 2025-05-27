@@ -1,13 +1,17 @@
 import 'package:get/get.dart';
 
 import '../modules/auth/bindings/auth_binding.dart';
+import '../modules/auth/views/forgot_password_view.dart';
 import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/register_view.dart';
-import '../modules/auth/views/forgot_password_view.dart';
 import '../modules/detail/bindings/detail_binding.dart';
 import '../modules/detail/views/detail_view.dart';
 import '../modules/menu/bindings/menu_binding.dart';
 import '../modules/menu/views/menu_view.dart';
+import '../modules/profile/bindings/profile_binding.dart';
+import '../modules/profile/views/profile_view.dart';
+import '../modules/transaction/bindings/transaction_binding.dart';
+import '../modules/transaction/views/transaction_view.dart';
 
 part 'app_routes.dart';
 
@@ -43,6 +47,16 @@ class AppPages {
       name: _Paths.DETAIL,
       page: () => const DetailView(),
       binding: DetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.PROFILE,
+      page: () => const ProfileView(),
+      binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: _Paths.TRANSACTION,
+      page: () => const TransactionView(),
+      binding: TransactionBinding(),
     ),
   ];
 }

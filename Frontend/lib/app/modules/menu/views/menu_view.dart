@@ -4,12 +4,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../controllers/menu_controller.dart';
+import '../../profile/views/profile_view.dart';
+import '../../transaction/views/transaction_view.dart';
+import '../../transaction/bindings/transaction_binding.dart';
+import '../../profile/bindings/profile_binding.dart';
 
 class MenuView extends GetView<MenusController> {
   const MenuView({Key? key}) : super(key: key);
 
   @override
+  
   Widget build(BuildContext context) {
+
+    ProfileBinding().dependencies();
+    TransactionBinding().dependencies();
     final NumberFormat currencyFormat = NumberFormat('#,###', 'id_ID');
     final TextEditingController searchController = TextEditingController();
 
@@ -35,52 +43,59 @@ class MenuView extends GetView<MenusController> {
           IconButton(
             icon: const FaIcon(FontAwesomeIcons.cartShopping, color: Colors.white),
             onPressed: () {
-              controller.onCartClicked(); // Memanggil fungsi onCartClicked dari controller
+              controller.onCartClicked();
             },
           ),
         ],
       ),
       body: Column(
         children: [
-          // Search bar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: 'Cari makanan atau minuman...',
-                prefixIcon: const Icon(
-                  Icons.search,
-                  color: Colors.blue,
-                  size: 24,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.grey[100],
-                contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                hintStyle: const TextStyle(color: Colors.grey),
-              ),
-              onChanged: (value) {
-                controller.filterMenu(searchQuery: value);
-              },
-            ),
-          ),
-          // Filter bar
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildFilterChip('All'),
-                _buildFilterChip('MAKANAN'),
-                _buildFilterChip('MINUMAN'),
-              ],
-            ),
-          ),
-          // Grid untuk menampilkan item dari API
+          // Search bar dan filter hanya ditampilkan di tab Home
+          Obx(() => controller.selectedIndex.value == 0
+              ? Column(
+                  children: [
+                    // Search bar
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: TextField(
+                        controller: searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Cari makanan atau minuman...',
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            color: Colors.blue,
+                            size: 24,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                          hintStyle: const TextStyle(color: Colors.grey),
+                        ),
+                        onChanged: (value) {
+                          controller.filterMenu(searchQuery: value);
+                        },
+                      ),
+                    ),
+                    // Filter bar
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildFilterChip('All'),
+                          _buildFilterChip('MAKANAN'),
+                          _buildFilterChip('MINUMAN'),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
+              : const SizedBox.shrink()),
+          // Konten utama berdasarkan tab
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
@@ -92,9 +107,9 @@ class MenuView extends GetView<MenusController> {
                   case 0:
                     return _buildHomeTab(context, currencyFormat);
                   case 1:
-                    return _buildTransactionTab();
+                    return const TransactionView();
                   case 2:
-                    return _buildProfileTab();
+                    return const ProfileView();
                   default:
                     return _buildHomeTab(context, currencyFormat);
                 }
@@ -238,7 +253,6 @@ class MenuView extends GetView<MenusController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Gambar produk dengan rasio 1:1
                 AspectRatio(
                   aspectRatio: 1 / 1,
                   child: ClipRRect(
@@ -274,13 +288,11 @@ class MenuView extends GetView<MenusController> {
                           ),
                   ),
                 ),
-                // Konten teks dengan padding yang lebih kompak
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Nama produk
                       Text(
                         item['name'],
                         style: GoogleFonts.poppins(
@@ -290,7 +302,6 @@ class MenuView extends GetView<MenusController> {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      // Harga
                       Text(
                         'Rp ${currencyFormat.format(item['price'].toInt())}',
                         style: GoogleFonts.poppins(
@@ -299,7 +310,6 @@ class MenuView extends GetView<MenusController> {
                           fontSize: 14,
                         ),
                       ),
-                      // Rating dan jumlah terjual
                       Row(
                         children: [
                           const FaIcon(
@@ -315,7 +325,6 @@ class MenuView extends GetView<MenusController> {
                         ],
                       ),
                       const SizedBox(height: 2),
-                      // Kategori
                       Text(
                         item['category'],
                         style: GoogleFonts.poppins(
@@ -331,24 +340,6 @@ class MenuView extends GetView<MenusController> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildTransactionTab() {
-    return Center(
-      child: Text(
-        'Halaman Transaction (Coming Soon)',
-        style: GoogleFonts.poppins(fontSize: 18, color: Colors.grey),
-      ),
-    );
-  }
-
-  Widget _buildProfileTab() {
-    return Center(
-      child: Text(
-        'Halaman Profile (Coming Soon)',
-        style: GoogleFonts.poppins(fontSize: 18, color: Colors.grey),
-      ),
     );
   }
 
