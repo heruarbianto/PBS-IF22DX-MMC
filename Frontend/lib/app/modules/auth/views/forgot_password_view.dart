@@ -74,7 +74,7 @@ class ForgotPasswordView extends GetView<AuthController> {
                     onPressed: controller.isLoading.value
                         ? null
                         : () {
-                            controller.forgotPassword(emailController.text);
+                            // controller.forgotPassword(emailController.text);
                           },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,

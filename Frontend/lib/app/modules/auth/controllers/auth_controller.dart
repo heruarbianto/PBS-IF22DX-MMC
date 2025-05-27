@@ -149,7 +149,7 @@ class AuthController extends GetxController {
 
     isLoading.value = true;
 
-    const String apiUrl = 'https://api.margataqwa.my.id/api/user/';
+    const String apiUrl = 'https://api.margataqwa.my.id/api/user';
 
     final Map<String, dynamic> body = {
       'namaValue': name,
@@ -212,54 +212,4 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<void> forgotPassword(String email) async {
-    if (email.isEmpty) {
-      Get.snackbar('Error', 'Email tidak boleh kosong');
-      return;
-    }
-
-    isLoading.value = true;
-
-    const String apiUrl = 'https://api.margataqwa.my.id/api/user/forgot-password';
-
-    final Map<String, dynamic> body = {
-      'emailValue': email,
-    };
-
-    try {
-      final response = await _makeRequest(apiUrl, body);
-
-      print('Forgot Password Response status: ${response.statusCode}');
-      print('Forgot Password Response body: ${response.body}');
-
-      final responseData = jsonDecode(response.body);
-
-      if (response.statusCode == 200) {
-        Get.snackbar(
-          'Sukses',
-          responseData['metadata']['message'],
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-        );
-        Get.offNamed('/login');
-      } else {
-        Get.snackbar(
-          'Error',
-          responseData['metadata']['message'],
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      }
-    } catch (e) {
-      print('Forgot Password Error: $e');
-      Get.snackbar(
-        'Error',
-        'Gagal terhubung ke server. Periksa koneksi internet Anda.',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    } finally {
-      isLoading.value = false;
-    }
-  }
 }
