@@ -115,7 +115,7 @@ export const POST = async (request: NextRequest) => {
     const body = await request.json();
     const {idMenu, quantity } = body;
 
-    if (!idMenu || !quantity) {
+    if (!idMenu || quantity===null) {
       return NextResponse.json(
         {
           metadata: {
