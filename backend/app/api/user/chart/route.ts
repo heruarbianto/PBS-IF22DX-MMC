@@ -33,45 +33,46 @@ export const GET = async (request: NextRequest) => {
       );
     }
 
-      // Membuat Variabel menu
-      const keranjang = await prisma.tb_keranjang.findMany({
-        where: {
-          idUser: Number(idUser),
-          status: 'FALSE'
-        },
-        include: {
-            tb_menu: {
-              select: {
-                id: true,
-                nama: true,
-                harga: true,
-                gambar_menu: true,
-              },
-            },
-            tb_user: {
-              select: {
-                id: true,
-                namaLengkap: true,
-              },
-            },
+    // Membuat Variabel menu
+    const keranjang = await prisma.tb_keranjang.findMany({
+      where: {
+        idUser: Number(idUser),
+        status: "FALSE",
+      },
+      include: {
+        tb_menu: {
+          select: {
+            id: true,
+            nama: true,
+            harga: true,
+            gambar_menu: true,
           },
-      });
+        },
+        tb_user: {
+          select: {
+            id: true,
+            namaLengkap: true,
+          },
+        },
+      },
+    });
     //   return keranjang;
-      if(keranjang.length <1){
-        // Jika data ditemukan, kembalikan respons dengan data user
-    return NextResponse.json(
+    if (keranjang.length < 1) {
+      // Jika data ditemukan, kembalikan respons dengan data user
+      return NextResponse.json(
         {
           metadata: {
             error: 0,
-            message: "Keranjang Masih Kosong, Silahkan Masukkan Menu Ke Keranjang!!!",
+            message:
+              "Keranjang Masih Kosong, Silahkan Masukkan Menu Ke Keranjang!!!",
           },
-          dataChart:[],
+          dataChart: [],
         },
         {
           status: 200,
         }
       );
-      }
+    }
     // Jika data ditemukan, kembalikan respons dengan data user
     return NextResponse.json(
       {
@@ -100,22 +101,26 @@ export const GET = async (request: NextRequest) => {
   }
 };
 
-
 // Post API Tambahkan Menu Ke Keranjang
 export const POST = async (request: NextRequest) => {
-   // Verifikasi token
-   const decoded: any = await verifyJWT(request);
+  // Verifikasi token
+  const decoded: any = await verifyJWT(request);
 
-   // Jika gagal, decoded akan jadi Response (dari middleware)
-   if (decoded instanceof Response) {
-     return decoded;
-   }
+  // Jika gagal, decoded akan jadi Response (dari middleware)
+  if (decoded instanceof Response) {
+    return decoded;
+  }
   try {
     const idUser = Number(decoded.id);
     const body = await request.json();
-    const {idMenu, quantity } = body;
+    const { idMenu, quantity } = body;
 
-    if (!idMenu || quantity===null) {
+    if (
+      typeof idMenu !== "number" ||
+      typeof quantity !== "number" ||
+      isNaN(idMenu) ||
+      isNaN(quantity)
+    ) {
       return NextResponse.json(
         {
           metadata: {
@@ -156,12 +161,12 @@ export const POST = async (request: NextRequest) => {
       const oldQuantity = cartItemFound.quantity;
       const menuPrice = cartItemFound.tb_menu.harga;
       const newQuantity = quantity + oldQuantity;
-      if(quantity <1){
+      if (quantity < 1) {
         await prisma.tb_keranjang.delete({
           where: {
-            id: cartItemFound.id
-          }
-        })
+            id: cartItemFound.id,
+          },
+        });
         return NextResponse.json(
           {
             metadata: {
@@ -194,7 +199,7 @@ export const POST = async (request: NextRequest) => {
         { status: 200 }
       );
     } else {
-      if(quantity <1){
+      if (quantity < 1) {
         return NextResponse.json(
           {
             metadata: {

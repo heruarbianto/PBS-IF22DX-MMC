@@ -14,7 +14,6 @@ export const POST = async (request: NextRequest) => {
     passwordValue,
   } = await request.json();
   //  const salt = genSaltSync(10);
-
   // Cek data username tersedia/tidak
   const cek = await prisma.tb_user.findMany({
     where: {
