@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import '../controllers/profile_controller.dart';
 
 class ProfileView extends GetView<ProfileController> {
@@ -12,7 +13,8 @@ class ProfileView extends GetView<ProfileController> {
   Widget build(BuildContext context) {
     return Obx(() {
       if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator(color: Colors.blueAccent));
+        return const Center(
+            child: CircularProgressIndicator(color: Colors.blueAccent));
       }
 
       if (controller.hasError.value) {
@@ -22,11 +24,13 @@ class ProfileView extends GetView<ProfileController> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const FaIcon(FontAwesomeIcons.triangleExclamation, size: 80, color: Colors.redAccent),
+                const FaIcon(FontAwesomeIcons.triangleExclamation,
+                    size: 80, color: Colors.redAccent),
                 const SizedBox(height: 20),
                 Text(
                   'Gagal Memuat Profil',
-                  style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.poppins(
+                      fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
                 Text(
@@ -44,8 +48,10 @@ class ProfileView extends GetView<ProfileController> {
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
               ],
@@ -56,7 +62,7 @@ class ProfileView extends GetView<ProfileController> {
 
       return Scaffold(
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () => _showEditProfileBottomSheet(context),
           backgroundColor: Colors.blueAccent,
           child: const Icon(Icons.edit),
         ),
@@ -79,17 +85,36 @@ class ProfileView extends GetView<ProfileController> {
               ),
               child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.white,
-                    backgroundImage: controller.userData['imageProfile'] != null &&
-                            controller.userData['imageProfile'].isNotEmpty
-                        ? NetworkImage(controller.userData['imageProfile'])
-                        : null,
-                    child: controller.userData['imageProfile'] == null ||
-                            controller.userData['imageProfile'].isEmpty
-                        ? const FaIcon(FontAwesomeIcons.user, size: 40, color: Colors.blueAccent)
-                        : null,
+                  GestureDetector(
+                    onTap: () {
+                      _showProfileImageDialog(context);
+                    },
+                    child: Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: Colors.white,
+                          backgroundImage:
+                              (controller.userData['imageProfile'] != null &&
+                                      controller
+                                          .userData['imageProfile'].isNotEmpty)
+                                  ? NetworkImage(
+                                      // Cek apakah sudah ada domain di depan atau belum
+                                      controller.userData['imageProfile']
+                                              .startsWith('http')
+                                          ? controller.userData['imageProfile']
+                                          : 'https://api.margataqwa.my.id${controller.userData['imageProfile']}',
+                                    )
+                                  : null,
+                          child: (controller.userData['imageProfile'] == null ||
+                                  controller.userData['imageProfile'].isEmpty)
+                              ? const FaIcon(FontAwesomeIcons.user,
+                                  size: 40, color: Colors.blueAccent)
+                              : null,
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -110,7 +135,8 @@ class ProfileView extends GetView<ProfileController> {
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
@@ -118,11 +144,13 @@ class ProfileView extends GetView<ProfileController> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.verified, size: 16, color: Colors.white),
+                        const Icon(Icons.verified,
+                            size: 16, color: Colors.white),
                         const SizedBox(width: 4),
                         Text(
                           "Terverifikasi",
-                          style: GoogleFonts.poppins(fontSize: 12, color: Colors.white),
+                          style: GoogleFonts.poppins(
+                              fontSize: 12, color: Colors.white),
                         ),
                       ],
                     ),
@@ -163,7 +191,8 @@ class ProfileView extends GetView<ProfileController> {
     });
   }
 
-  Widget _infoCard({required IconData icon, required String title, required String value}) {
+  Widget _infoCard(
+      {required IconData icon, required String title, required String value}) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 2,
@@ -179,12 +208,14 @@ class ProfileView extends GetView<ProfileController> {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.poppins(
+                        fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     value,
-                    style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700]),
+                    style: GoogleFonts.poppins(
+                        fontSize: 14, color: Colors.grey[700]),
                   ),
                 ],
               ),
@@ -192,6 +223,192 @@ class ProfileView extends GetView<ProfileController> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showEditProfileBottomSheet(BuildContext context) {
+    final namaLengkapController =
+        TextEditingController(text: controller.userData['namaLengkap'] ?? '');
+    final emailController =
+        TextEditingController(text: controller.userData['email'] ?? '');
+    final noHpController =
+        TextEditingController(text: controller.userData['noHp'] ?? '');
+    final alamatController =
+        TextEditingController(text: controller.userData['alamat'] ?? '');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 20,
+          right: 20,
+          top: 20,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Edit Profil',
+                style: GoogleFonts.poppins(
+                    fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: namaLengkapController,
+                decoration: InputDecoration(
+                  labelText: 'Nama Lengkap',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  prefixIcon: const Icon(Icons.person),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  prefixIcon: const Icon(FontAwesomeIcons.envelope),
+                ),
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: noHpController,
+                decoration: InputDecoration(
+                  labelText: 'No. HP',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  prefixIcon: const Icon(FontAwesomeIcons.phone),
+                ),
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: alamatController,
+                decoration: InputDecoration(
+                  labelText: 'Alamat',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                  prefixIcon: const Icon(FontAwesomeIcons.locationDot),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Get.back(),
+                    child: Text(
+                      'Batal',
+                      style: GoogleFonts.poppins(color: Colors.grey),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      controller.updateUserProfile({
+                        'namaLengkap': namaLengkapController.text,
+                        'email': emailController.text,
+                        'noHp': noHpController.text,
+                        'alamat': alamatController.text,
+                      });
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(
+                      'Simpan',
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showProfileImageDialog(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "Foto Profil",
+      pageBuilder: (_, __, ___) {
+        return GestureDetector(
+          onTap: () => Get.back(),
+          child: Scaffold(
+            backgroundColor: Colors.black.withOpacity(0.9),
+            body: Stack(
+              children: [
+                Center(
+                  child: Hero(
+                    tag: "profile_image",
+                    child: controller.userData['imageProfile'] != null &&
+                            controller.userData['imageProfile'].isNotEmpty
+                        ? Image.network(
+                            controller.userData['imageProfile'],
+                            fit: BoxFit.contain,
+                            width: MediaQuery.of(context).size.width,
+                          )
+                        : const Icon(
+                            FontAwesomeIcons.user,
+                            size: 100,
+                            color: Colors.white54,
+                          ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 40,
+                  right: 30,
+                  child: FloatingActionButton(
+                    backgroundColor: Colors.white.withOpacity(0.15),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    onPressed: () async {
+                      final ImagePicker picker = ImagePicker();
+                      final XFile? pickedImage =
+                          await picker.pickImage(source: ImageSource.gallery);
+
+                      if (pickedImage != null) {
+                        controller
+                            .updateUserProfile({}, imageFile: pickedImage);
+                        Get.back(); // Tutup dialog setelah update
+                      }
+                    },
+                    child: const Icon(Icons.edit, size: 24),
+                  ),
+                ),
+                Positioned(
+                  top: 40,
+                  right: 20,
+                  child: IconButton(
+                    icon:
+                        const Icon(Icons.close, color: Colors.white, size: 30),
+                    onPressed: () => Get.back(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

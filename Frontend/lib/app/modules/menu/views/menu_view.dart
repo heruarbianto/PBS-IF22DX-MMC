@@ -13,9 +13,7 @@ class MenuView extends GetView<MenusController> {
   const MenuView({Key? key}) : super(key: key);
 
   @override
-  
   Widget build(BuildContext context) {
-
     ProfileBinding().dependencies();
     TransactionBinding().dependencies();
     final NumberFormat currencyFormat = NumberFormat('#,###', 'id_ID');
@@ -41,7 +39,8 @@ class MenuView extends GetView<MenusController> {
         ),
         actions: [
           IconButton(
-            icon: const FaIcon(FontAwesomeIcons.cartShopping, color: Colors.white),
+            icon: const FaIcon(FontAwesomeIcons.cartShopping,
+                color: Colors.white),
             onPressed: () {
               controller.onCartClicked();
             },
@@ -56,7 +55,8 @@ class MenuView extends GetView<MenusController> {
                   children: [
                     // Search bar
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       child: TextField(
                         controller: searchController,
                         decoration: InputDecoration(
@@ -72,7 +72,8 @@ class MenuView extends GetView<MenusController> {
                           ),
                           filled: true,
                           fillColor: Colors.grey[100],
-                          contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 0),
                           hintStyle: const TextStyle(color: Colors.grey),
                         ),
                         onChanged: (value) {
@@ -82,7 +83,8 @@ class MenuView extends GetView<MenusController> {
                     ),
                     // Filter bar
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -191,7 +193,8 @@ class MenuView extends GetView<MenusController> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
                 child: Text(
                   'Coba Lagi',
@@ -256,8 +259,10 @@ class MenuView extends GetView<MenusController> {
                 AspectRatio(
                   aspectRatio: 1 / 1,
                   child: ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-                    child: item['image'] != null && item['image'].toString().isNotEmpty
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(15)),
+                    child: item['image'] != null &&
+                            item['image'].toString().isNotEmpty
                         ? Image.network(
                             item['image'],
                             fit: BoxFit.cover,
@@ -289,7 +294,8 @@ class MenuView extends GetView<MenusController> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
