@@ -56,7 +56,7 @@ class ProfileView extends GetView<ProfileController> {
 
       return Scaffold(
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () => _showEditProfileBottomSheet(context),
           backgroundColor: Colors.blueAccent,
           child: const Icon(Icons.edit),
         ),
@@ -190,6 +190,113 @@ class ProfileView extends GetView<ProfileController> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void _showEditProfileBottomSheet(BuildContext context) {
+    final namaLengkapController = TextEditingController(text: controller.userData['namaLengkap'] ?? '');
+    final emailController = TextEditingController(text: controller.userData['email'] ?? '');
+    final noHpController = TextEditingController(text: controller.userData['noHp'] ?? '');
+    final alamatController = TextEditingController(text: controller.userData['alamat'] ?? '');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 20,
+          right: 20,
+          top: 20,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Edit Profil',
+                style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: namaLengkapController,
+                decoration: InputDecoration(
+                  labelText: 'Nama Lengkap',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  prefixIcon: const Icon(Icons.person),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  prefixIcon: const Icon(FontAwesomeIcons.envelope),
+                ),
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: noHpController,
+                decoration: InputDecoration(
+                  labelText: 'No. HP',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  prefixIcon: const Icon(FontAwesomeIcons.phone),
+                ),
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: alamatController,
+                decoration: InputDecoration(
+                  labelText: 'Alamat',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  prefixIcon: const Icon(FontAwesomeIcons.locationDot),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Get.back(),
+                    child: Text(
+                      'Batal',
+                      style: GoogleFonts.poppins(color: Colors.grey),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      controller.updateUserProfile({
+                        'namaLengkap': namaLengkapController.text,
+                        'email': emailController.text,
+                        'noHp': noHpController.text,
+                        'alamat': alamatController.text,
+                      });
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(
+                      'Simpan',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
