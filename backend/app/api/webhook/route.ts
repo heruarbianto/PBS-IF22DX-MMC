@@ -1,32 +1,28 @@
 // app/api/webhook/route.ts
+import { NextResponse } from 'next/server';
+import { exec } from 'child_process';
 
-import { NextRequest } from 'next/server'
-import { exec } from 'child_process'
-import path from 'path'
+export async function POST(request: Request) {
+  try {
+    // Membaca payload JSON dari body request
+    const payload = await request.json();
 
-export async function POST(req: NextRequest) {
-  // Path absolut ke deploy.sh
-  const deployScriptPath = path.resolve(process.cwd(), 'deploy.sh')
+    // Memeriksa apakah event adalah push ke branch main
+    if (payload.ref === 'refs/heads/master') {
+      // Menjalankan script deploy.sh
+      exec('./deploy.sh', (error, stdout, stderr) => {
+        if (error) {
+          console.error(`exec error: ${error}`);
+          return;
+        }
+        console.log(`stdout: ${stdout}`);
+        console.error(`stderr: ${stderr}`);
+      });
+    }
 
-  return new Promise((resolve) => {
-    exec(`bash "${deployScriptPath}"`, (error, stdout, stderr) => {
-      if (error) {
-        console.error('🔴 Deployment error:', error.message)
-        console.error('⚠️ STDERR:', stderr)
-        return resolve(
-          new Response(`Deployment failed:\n${stderr || error.message}`, {
-            status: 500,
-          })
-        )
-      }
-
-      console.log('✅ Deployment success')
-      console.log('📄 STDOUT:', stdout)
-      return resolve(
-        new Response('Deployment triggered successfully', {
-          status: 200,
-        })
-      )
-    })
-  })
+    return NextResponse.json({ message: 'Webhook received and processed' });
+  } catch (error) {
+    console.error('Error processing webhook:', error);
+    return new Response('Internal Server Error', { status: 500 });
+  }
 }
