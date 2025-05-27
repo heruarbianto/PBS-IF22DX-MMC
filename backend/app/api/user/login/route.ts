@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import { role } from "@/app/generated/prisma";
 
 // SECRET KEY buat tanda tangan JWT
-const JWT_SECRET = process.env.JWT_SECRET || "secret_jangan_di_produksi";
+const JWT_SECRET = process.env.JWT_SECRET || "jwt-pbs-mmc-tukuyo";
 
 export const POST = async (request: NextRequest) => {
   try {

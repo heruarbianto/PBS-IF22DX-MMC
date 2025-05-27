@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { NextRequest, NextResponse } from 'next/server';
 
-const JWT_SECRET = process.env.JWT_SECRET || "secret_jangan_di_produksi";
+const JWT_SECRET = process.env.JWT_SECRET || "jwt-pbs-mmc-tukuyo";
 
 export async function verifyJWT(request: NextRequest) {
   try {
