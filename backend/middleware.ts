@@ -3,16 +3,9 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  // Tangani preflight OPTIONS request
-  if (request.method === 'OPTIONS') {
-    const response = NextResponse.json(null, { status: 204 }) // 204 No Content
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, DELETE, PUT, PATCH')
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    return response
-  }
+  console.log('Middleware running for:', request.nextUrl.pathname)
 
-  // Untuk request GET, POST, dll, lanjutkan dan pasang header CORS
+  // Example: Add CORS headers to all API routes
   const response = NextResponse.next()
   response.headers.set('Access-Control-Allow-Origin', '*')
   response.headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, DELETE, PUT, PATCH')
@@ -21,6 +14,7 @@ export function middleware(request: NextRequest) {
   return response
 }
 
+// This is how you control where the middleware runs
 export const config = {
-  matcher: ['/:path*'],
+  matcher: ['/:path*'], // Runs for all routes under /api/
 }
