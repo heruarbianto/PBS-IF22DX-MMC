@@ -6,7 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../controllers/detail_controller.dart';
 
 class DetailView extends GetView<DetailController> {
-  const DetailView({Key? key}) : super(key: key);
+  const DetailView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class DetailView extends GetView<DetailController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Gambar produk
-                  Container(
+                  SizedBox(
                     height: 350,
                     width: double.infinity,
                     child: item['image'] != null && item['image'].toString().isNotEmpty

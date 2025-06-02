@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../controllers/auth_controller.dart';
 
 class ForgotPasswordView extends GetView<AuthController> {
-  const ForgotPasswordView({Key? key}) : super(key: key);
+  const ForgotPasswordView({super.key});
 
   @override
   Widget build(BuildContext context) {

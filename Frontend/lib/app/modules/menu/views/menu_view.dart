@@ -10,7 +10,7 @@ import '../../transaction/bindings/transaction_binding.dart';
 import '../../profile/bindings/profile_binding.dart';
 
 class MenuView extends GetView<MenusController> {
-  const MenuView({Key? key}) : super(key: key);
+  const MenuView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +26,7 @@ class MenuView extends GetView<MenusController> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: MediaQuery.of(context).size.width < 600 ? 18 : 20,
           ),
         ),
         flexibleSpace: Container(
@@ -39,8 +40,11 @@ class MenuView extends GetView<MenusController> {
         ),
         actions: [
           IconButton(
-            icon: const FaIcon(FontAwesomeIcons.cartShopping,
-                color: Colors.white),
+            icon: FaIcon(
+              FontAwesomeIcons.cartShopping,
+              color: Colors.white,
+              size: MediaQuery.of(context).size.width < 600 ? 22 : 24,
+            ),
             onPressed: () {
               controller.onCartClicked();
             },
@@ -61,10 +65,10 @@ class MenuView extends GetView<MenusController> {
                         controller: searchController,
                         decoration: InputDecoration(
                           hintText: 'Cari makanan atau minuman...',
-                          prefixIcon: const Icon(
+                          prefixIcon: Icon(
                             Icons.search,
                             color: Colors.blue,
-                            size: 24,
+                            size: MediaQuery.of(context).size.width < 600 ? 22 : 24,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30),
@@ -74,7 +78,10 @@ class MenuView extends GetView<MenusController> {
                           fillColor: Colors.grey[100],
                           contentPadding:
                               const EdgeInsets.symmetric(vertical: 0),
-                          hintStyle: const TextStyle(color: Colors.grey),
+                          hintStyle: GoogleFonts.poppins(
+                            color: Colors.grey,
+                            fontSize: MediaQuery.of(context).size.width < 600 ? 14 : 16,
+                          ),
                         ),
                         onChanged: (value) {
                           controller.filterMenu(searchQuery: value);
@@ -85,13 +92,17 @@ class MenuView extends GetView<MenusController> {
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 4),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildFilterChip('All'),
-                          _buildFilterChip('MAKANAN'),
-                          _buildFilterChip('MINUMAN'),
-                        ],
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _buildFilterChip('All', constraints.maxWidth),
+                              _buildFilterChip('MAKANAN', constraints.maxWidth),
+                              _buildFilterChip('MINUMAN', constraints.maxWidth),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -128,17 +139,32 @@ class MenuView extends GetView<MenusController> {
             selectedItemColor: Colors.blueAccent,
             unselectedItemColor: Colors.grey,
             showUnselectedLabels: true,
-            items: const [
+            selectedLabelStyle: GoogleFonts.poppins(
+              fontSize: MediaQuery.of(context).size.width < 600 ? 12 : 14,
+            ),
+            unselectedLabelStyle: GoogleFonts.poppins(
+              fontSize: MediaQuery.of(context).size.width < 600 ? 10 : 12,
+            ),
+            items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.home),
+                icon: Icon(
+                  Icons.home,
+                  size: MediaQuery.of(context).size.width < 600 ? 24 : 28,
+                ),
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.receipt),
+                icon: Icon(
+                  Icons.receipt,
+                  size: MediaQuery.of(context).size.width < 600 ? 24 : 28,
+                ),
                 label: 'Transaction',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person),
+                icon: Icon(
+                  Icons.person,
+                  size: MediaQuery.of(context).size.width < 600 ? 24 : 28,
+                ),
                 label: 'Profile',
               ),
             ],
@@ -160,26 +186,26 @@ class MenuView extends GetView<MenusController> {
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.3,
               ),
-              const FaIcon(
+              FaIcon(
                 FontAwesomeIcons.globe,
-                size: 150,
+                size: MediaQuery.of(context).size.width < 600 ? 120 : 150,
                 color: Colors.grey,
               ),
               const SizedBox(height: 16),
               Text(
                 'Periksa Koneksi Internet Anda',
                 style: GoogleFonts.poppins(
-                  fontSize: 18,
+                  fontSize: MediaQuery.of(context).size.width < 600 ? 16 : 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey[800],
+                  color: Colors.grey,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Tidak dapat terhubung ke server. Silakan coba lagi.',
                 style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: Colors.grey[600],
+                  fontSize: MediaQuery.of(context).size.width < 600 ? 12 : 14,
+                  color: Colors.grey,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -193,13 +219,12 @@ class MenuView extends GetView<MenusController> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
                 child: Text(
                   'Coba Lagi',
                   style: GoogleFonts.poppins(
-                    fontSize: 14,
+                    fontSize: MediaQuery.of(context).size.width < 600 ? 12 : 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
                   ),
@@ -223,7 +248,7 @@ class MenuView extends GetView<MenusController> {
               Text(
                 'Tidak ada item yang tersedia',
                 style: GoogleFonts.poppins(
-                  fontSize: 16,
+                  fontSize: MediaQuery.of(context).size.width < 600 ? 14 : 16,
                   color: Colors.grey,
                 ),
               ),
@@ -233,123 +258,172 @@ class MenuView extends GetView<MenusController> {
       );
     }
 
-    return GridView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.6,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemCount: controller.filteredMenuList.length,
-      itemBuilder: (context, index) {
-        final item = controller.filteredMenuList[index];
-        return GestureDetector(
-          onTap: () {
-            Get.toNamed('/detail', arguments: {'id': item['id']});
-          },
-          child: Card(
-            elevation: 5,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AspectRatio(
-                  aspectRatio: 1 / 1,
-                  child: ClipRRect(
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(15)),
-                    child: item['image'] != null &&
-                            item['image'].toString().isNotEmpty
-                        ? Image.network(
-                            item['image'],
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Tentukan jumlah kolom dan properti lain berdasarkan lebar layar
+        int crossAxisCount;
+        double childAspectRatio;
+        double fontSize;
+        double iconSize;
+
+        if (constraints.maxWidth < 600) {
+  // Mobile: 2 kolom
+  crossAxisCount = 2;
+  childAspectRatio = 0.65; // Lebih tinggi agar muat isi
+  fontSize = 12;
+  iconSize = 50;
+} else if (constraints.maxWidth < 900) {
+  // Tablet kecil: 3 kolom
+  crossAxisCount = 3;
+  childAspectRatio = 0.65;
+  fontSize = 13;
+  iconSize = 60;
+} else if (constraints.maxWidth < 1200) {
+  // Tablet besar/Desktop kecil: 4 kolom
+  crossAxisCount = 4;
+  childAspectRatio = 0.65;
+  fontSize = 14;
+  iconSize = 70;
+} else if (constraints.maxWidth < 1600) {
+  // Desktop sedang: 6 kolom
+  crossAxisCount = 6;
+  childAspectRatio = 0.65;
+  fontSize = 14;
+  iconSize = 80;
+} else {
+  // Desktop besar: 8 kolom
+  crossAxisCount = 8;
+  childAspectRatio = 0.65;
+  fontSize = 14;
+  iconSize = 90;
+}
+
+
+        return GridView.builder(
+          padding: EdgeInsets.symmetric(
+            horizontal: constraints.maxWidth < 600 ? 16 : 24,
+            vertical: 8,
+          ),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            childAspectRatio: childAspectRatio,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: controller.filteredMenuList.length,
+          itemBuilder: (context, index) {
+            final item = controller.filteredMenuList[index];
+            return GestureDetector(
+              onTap: () {
+                Get.toNamed('/detail', arguments: {'id': item['id']});
+              },
+              child: Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AspectRatio(
+                      aspectRatio: 1 / 1,
+                      child: ClipRRect(
+                        borderRadius:
+                            const BorderRadius.vertical(top: Radius.circular(15)),
+                        child: item['image'] != null &&
+                                item['image'].toString().isNotEmpty
+                            ? Image.network(
+                                item['image'],
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: Colors.grey[200],
+                                    child: Center(
+                                      child: FaIcon(
+                                        FontAwesomeIcons.utensils,
+                                        size: iconSize,
+                                        color: Colors.blueAccent,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              )
+                            : Container(
                                 color: Colors.grey[200],
-                                child: const Center(
+                                child: Center(
                                   child: FaIcon(
                                     FontAwesomeIcons.utensils,
-                                    size: 70,
+                                    size: iconSize,
                                     color: Colors.blueAccent,
                                   ),
                                 ),
-                              );
-                            },
-                          )
-                        : Container(
-                            color: Colors.grey[200],
-                            child: const Center(
-                              child: FaIcon(
-                                FontAwesomeIcons.utensils,
-                                size: 70,
+                              ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              item['name'],
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w800,
+                                fontSize: fontSize,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              'Rp ${currencyFormat.format(item['price'].toInt())}',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.bold,
                                 color: Colors.blueAccent,
+                                fontSize: fontSize,
                               ),
                             ),
-                          ),
-                  ),
+                            Row(
+                              children: [
+                                FaIcon(
+                                  FontAwesomeIcons.solidStar,
+                                  color: Colors.yellow,
+                                  size: fontSize - 2,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${item['rating']}, ${item['sold']}',
+                                  style: GoogleFonts.poppins(fontSize: fontSize - 2),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              item['category'],
+                              style: GoogleFonts.poppins(
+                                color: Colors.grey,
+                                fontSize: fontSize - 4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item['name'],
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        'Rp ${currencyFormat.format(item['price'].toInt())}',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blueAccent,
-                          fontSize: 14,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          const FaIcon(
-                            FontAwesomeIcons.solidStar,
-                            color: Colors.yellow,
-                            size: 14,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${item['rating']}, ${item['sold']}',
-                            style: GoogleFonts.poppins(fontSize: 12),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        item['category'],
-                        style: GoogleFonts.poppins(
-                          color: Colors.grey,
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildFilterChip(String category) {
+  Widget _buildFilterChip(String category, double maxWidth) {
     return Obx(() => FilterChip(
           label: Text(
             category,
@@ -358,7 +432,7 @@ class MenuView extends GetView<MenusController> {
                   ? Colors.white
                   : Colors.black,
               fontWeight: FontWeight.w500,
-              fontSize: 12,
+              fontSize: maxWidth < 600 ? 10 : 12,
             ),
           ),
           selected: controller.selectedCategory.value == category,

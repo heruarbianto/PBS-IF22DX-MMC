@@ -19,7 +19,7 @@ class AuthController extends GetxController {
       print('Redirecting to: ${response.body}');
       final redirectUrl = response.body.startsWith('http')
           ? response.body
-          : 'https://api.margataqwa.my.id${response.body}';
+          : 'https://api.mmcproject.web.id${response.body}';
       return _makeRequest(redirectUrl, body);
     }
 
@@ -48,7 +48,7 @@ class AuthController extends GetxController {
 
     isLoading.value = true;
 
-    const String apiUrl = 'https://api.margataqwa.my.id/api/user/login';
+    const String apiUrl = 'https://api.mmcproject.web.id/api/user/login';
 
     final Map<String, dynamic> body = {
       'loginValue': loginValue,
@@ -149,7 +149,7 @@ class AuthController extends GetxController {
 
     isLoading.value = true;
 
-    const String apiUrl = 'https://api.margataqwa.my.id/api/user';
+    const String apiUrl = 'https://api.mmcproject.web.id/api/user';
 
     final Map<String, dynamic> body = {
       'namaValue': name,

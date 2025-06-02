@@ -38,7 +38,7 @@ class MenusController extends GetxController {
       }
 
       final response = await http.get(
-        Uri.parse('https://api.margataqwa.my.id/api/menu'),
+        Uri.parse('https://api.mmcproject.web.id/api/menu'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -53,7 +53,7 @@ class MenusController extends GetxController {
               'price': item['harga'],
               'rating': 4.5, // Adjust if API provides rating
               'sold': '50+ terjual', // Adjust if API provides sold count
-              'image': 'https://api.margataqwa.my.id${item['gambar_menu']}',
+              'image': 'https://api.mmcproject.web.id${item['gambar_menu']}',
               'category': item['kategori'],
               'availability': item['ketersediaan'],
             };

@@ -7,7 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import '../controllers/profile_controller.dart';
 
 class ProfileView extends GetView<ProfileController> {
-  const ProfileView({Key? key}) : super(key: key);
+  const ProfileView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -351,60 +351,113 @@ class ProfileView extends GetView<ProfileController> {
       barrierDismissible: true,
       barrierLabel: "Foto Profil",
       pageBuilder: (_, __, ___) {
+        final screenSize = MediaQuery.of(context).size;
+        final topMargin = screenSize.height * 0.2;
+        const horizontalMargin = 40.0; // margin kiri kanan foto
+
         return GestureDetector(
           onTap: () => Get.back(),
           child: Scaffold(
-            backgroundColor: Colors.black.withOpacity(0.9),
-            body: Stack(
-              children: [
-                Center(
-                  child: Hero(
-                    tag: "profile_image",
-                    child: controller.userData['imageProfile'] != null &&
-                            controller.userData['imageProfile'].isNotEmpty
-                        ? Image.network(
-                            controller.userData['imageProfile'],
-                            fit: BoxFit.contain,
-                            width: MediaQuery.of(context).size.width,
-                          )
-                        : const Icon(
-                            FontAwesomeIcons.user,
-                            size: 100,
-                            color: Colors.white54,
+            backgroundColor:
+                Colors.black.withOpacity(0.7), // transparan gelap netral
+            body: SafeArea(
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: topMargin,
+                    left: horizontalMargin,
+                    right: horizontalMargin,
+                    child: Center(
+                      child: Hero(
+                        tag: "profile_image",
+                        child: Container(
+                          width: screenSize.width - horizontalMargin * 2,
+                          height:
+                              screenSize.width - horizontalMargin * 2, // 1:1
+                          decoration: BoxDecoration(
+                            color: Colors.grey[
+                                850], // latar belakang netral kalau foto belum load
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black45,
+                                blurRadius: 10,
+                                offset: Offset(0, 4),
+                              )
+                            ],
                           ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: controller.userData['imageProfile'] !=
+                                        null &&
+                                    controller
+                                        .userData['imageProfile'].isNotEmpty
+                                ? Image.network(
+                                    controller.userData['imageProfile']
+                                            .toString()
+                                            .startsWith('http')
+                                        ? controller.userData['imageProfile']
+                                        : 'https://api.margataqwa.my.id${controller.userData['imageProfile']}',
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (context, child, progress) {
+                                      if (progress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: progress.expectedTotalBytes !=
+                                                  null
+                                              ? progress.cumulativeBytesLoaded /
+                                                  progress.expectedTotalBytes!
+                                              : null,
+                                          color: Colors.white,
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder:
+                                        (context, error, stackTrace) => const Icon(
+                                            Icons.person,
+                                            size: 100,
+                                            color: Colors.white54),
+                                  )
+                                : const Icon(Icons.person,
+                                    size: 100, color: Colors.white54),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                Positioned(
-                  bottom: 40,
-                  right: 30,
-                  child: FloatingActionButton(
-                    backgroundColor: Colors.white.withOpacity(0.15),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    onPressed: () async {
-                      final ImagePicker picker = ImagePicker();
-                      final XFile? pickedImage =
-                          await picker.pickImage(source: ImageSource.gallery);
 
-                      if (pickedImage != null) {
-                        controller
-                            .updateUserProfile({}, imageFile: pickedImage);
-                        Get.back(); // Tutup dialog setelah update
-                      }
-                    },
-                    child: const Icon(Icons.edit, size: 24),
+                  // Tombol edit pojok kanan bawah foto
+                  Positioned(
+                    top: topMargin +
+                        screenSize.width -
+                        horizontalMargin * 2 -
+                        50,
+                    right: horizontalMargin + 10,
+                    child: GestureDetector(
+                      onTap: () async {
+                        final ImagePicker picker = ImagePicker();
+                        final XFile? pickedImage =
+                            await picker.pickImage(source: ImageSource.gallery);
+
+                        if (pickedImage != null) {
+                          controller
+                              .updateUserProfile({}, imageFile: pickedImage);
+                          Get.back();
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[700]?.withOpacity(0.8),
+                          shape: BoxShape.circle,
+                        ),
+                        padding: const EdgeInsets.all(12),
+                        child:
+                            const Icon(Icons.edit, color: Colors.white70, size: 24),
+                      ),
+                    ),
                   ),
-                ),
-                Positioned(
-                  top: 40,
-                  right: 20,
-                  child: IconButton(
-                    icon:
-                        const Icon(Icons.close, color: Colors.white, size: 30),
-                    onPressed: () => Get.back(),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );

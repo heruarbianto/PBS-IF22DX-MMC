@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
+import 'package:http_parser/http_parser.dart';
+
 
 class ProfileController extends GetxController {
   var isLoading = true.obs;
@@ -55,6 +57,7 @@ class ProfileController extends GetxController {
       isLoading(false);
     }
   }
+  
 
   Future<void> updateUserProfile(Map<String, String> updatedData,
       {XFile? imageFile}) async {
@@ -80,11 +83,17 @@ class ProfileController extends GetxController {
         }
       });
 
-      // Add image file if provided
-      if (imageFile != null) {
-        request.files.add(
-            await http.MultipartFile.fromPath('imageProfile', imageFile.path));
-      }
+     // Add image file if provided (cross-platform)
+if (imageFile != null) {
+  final bytes = await imageFile.readAsBytes();
+  final multipartFile = http.MultipartFile.fromBytes(
+    'imageProfile',
+    bytes,
+    filename: imageFile.name,
+    contentType: MediaType('image', 'jpeg'), // atau 'png' sesuai file
+  );
+  request.files.add(multipartFile);
+}
 
       // Send request
       final response = await request.send();
