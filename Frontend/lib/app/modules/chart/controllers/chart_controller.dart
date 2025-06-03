@@ -107,6 +107,5 @@ class ChartController extends GetxController {
   }
   void removeItem(int index) {
       updateQuantity(index, cartItems[index]['quantity'] - 1);
-      fetchCart();
   }
 }

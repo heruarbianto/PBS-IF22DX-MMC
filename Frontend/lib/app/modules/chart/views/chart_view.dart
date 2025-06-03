@@ -38,6 +38,7 @@ class ChartView extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final item = controller.cartItems[index];
                   final menu = item['tb_menu'];
+                  if (item['quantity'] >= 1)
                   return Container(
                     margin:
                         const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
@@ -86,6 +87,7 @@ class ChartView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
+                        
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,8 +122,10 @@ class ChartView extends StatelessWidget {
                                                     onPressed: () =>
                                                         Navigator.of(context)
                                                             .pop(),
-                                                    child: const Text('Batal',style: TextStyle(
-                                                            color: Colors.blueAccent)),
+                                                    child: const Text('Batal',
+                                                        style: TextStyle(
+                                                            color: Colors
+                                                                .blueAccent)),
                                                   ),
                                                   TextButton(
                                                     child: const Text('Hapus',
@@ -233,4 +237,3 @@ class ChartView extends StatelessWidget {
     );
   }
 }
-

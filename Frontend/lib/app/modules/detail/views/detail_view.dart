@@ -23,8 +23,8 @@ class DetailView extends GetView<DetailController> {
         title: Text(
           'Detail Produk',
           style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontSize: MediaQuery.of(context).size.width < 600 ? 18 : 20,
             color: Colors.blueAccent,
           ),
         ),
@@ -32,7 +32,7 @@ class DetailView extends GetView<DetailController> {
           IconButton(
             icon: const FaIcon(FontAwesomeIcons.cartShopping, color: Colors.blueAccent),
             onPressed: () {
-              Get.toNamed('/cart');
+              Get.toNamed('/chart');
             },
           ),
         ],
