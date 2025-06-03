@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:pbs_mmc_tukoyo/app/modules/chart/views/chart_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -121,7 +122,7 @@ class MenusController extends GetxController {
   Future<void> onCartClicked() async {
     await checkLoginStatus();
     if (isLoggedIn.value) {
-      Get.snackbar('Info', 'Menuju halaman keranjang (placeholder)');
+      Get.toNamed('/chart');
     } else {
       Get.toNamed('/login');
     }

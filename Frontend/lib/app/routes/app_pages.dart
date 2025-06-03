@@ -4,6 +4,8 @@ import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/forgot_password_view.dart';
 import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/register_view.dart';
+import '../modules/chart/bindings/chart_binding.dart';
+import '../modules/chart/views/chart_view.dart';
 import '../modules/detail/bindings/detail_binding.dart';
 import '../modules/detail/views/detail_view.dart';
 import '../modules/menu/bindings/menu_binding.dart';
@@ -57,6 +59,11 @@ class AppPages {
       name: _Paths.TRANSACTION,
       page: () => const TransactionView(),
       binding: TransactionBinding(),
+    ),
+    GetPage(
+      name: _Paths.CHART,
+      page: () => ChartView(),
+      binding: ChartBinding(),
     ),
   ];
 }
