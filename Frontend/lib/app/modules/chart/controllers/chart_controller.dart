@@ -69,19 +69,18 @@ class ChartController extends GetxController {
   }
 
   Future<void> updateQuantity(int index, int newQuantity) async {
-    if (newQuantity < 1) return; // Prevent quantity from going below 1
-
+      cartItems[index]['quantity'] = newQuantity;
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('jwt_token') ?? '';
 
-      final response = await http.put(
-        Uri.parse('https://api.mmcproject.web.id/api/user/chart/${cartItems[index]['id']}'),
+      final response = await http.post(
+        Uri.parse('https://api.mmcproject.web.id/api/user/chart'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: json.encode({'quantity': newQuantity}),
+        body: json.encode({'quantity': newQuantity, 'idMenu': cartItems[index]['tb_menu']['id']}),
       );
 
       if (response.statusCode == 200) {
@@ -105,5 +104,9 @@ class ChartController extends GetxController {
     if (cartItems[index]['quantity'] > 1) {
       updateQuantity(index, cartItems[index]['quantity'] - 1);
     }
+  }
+  void removeItem(int index) {
+      updateQuantity(index, cartItems[index]['quantity'] - 1);
+      fetchCart();
   }
 }

@@ -104,13 +104,48 @@ class ChartView extends StatelessWidget {
                               const SizedBox(height: 10),
                               Row(
                                 children: [
-                                  IconButton(
-                                    icon: const Icon(
-                                        Icons.remove_circle_outline,
-                                        color: Colors.grey),
-                                    onPressed: () =>
-                                        controller.decrementQuantity(index),
-                                  ),
+                                  item['quantity'] == 1
+                                      ? IconButton(
+                                          icon: const Icon(Icons.delete_outline,
+                                              color: Colors.red),
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                title: const Text('Konfirmasi'),
+                                                content: const Text(
+                                                    'Yakin ingin menghapus item dari keranjang?'),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(),
+                                                    child: const Text('Batal',style: TextStyle(
+                                                            color: Colors.blueAccent)),
+                                                  ),
+                                                  TextButton(
+                                                    child: const Text('Hapus',
+                                                        style: TextStyle(
+                                                            color: Colors.red)),
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                      controller
+                                                          .removeItem(index);
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        )
+                                      : IconButton(
+                                          icon: const Icon(
+                                              Icons.remove_circle_outline,
+                                              color: Colors.grey),
+                                          onPressed: () => controller
+                                              .decrementQuantity(index),
+                                        ),
                                   Text(item['quantity'].toString(),
                                       style: const TextStyle(fontSize: 16)),
                                   IconButton(
@@ -198,3 +233,4 @@ class ChartView extends StatelessWidget {
     );
   }
 }
+
