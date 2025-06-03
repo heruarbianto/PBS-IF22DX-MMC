@@ -121,7 +121,7 @@ class MenusController extends GetxController {
   Future<void> onCartClicked() async {
     await checkLoginStatus();
     if (isLoggedIn.value) {
-      Get.snackbar('Info', 'Menuju halaman keranjang (placeholder)');
+      Get.toNamed('/chart');
     } else {
       Get.toNamed('/login');
     }

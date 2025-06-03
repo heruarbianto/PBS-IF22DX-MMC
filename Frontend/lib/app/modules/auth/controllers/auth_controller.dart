@@ -3,9 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthController extends GetxController {
   final isLoading = false.obs;
+  var isLoggedIn = false.obs;
+  
+
+  Future<void> checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token') ?? '';
+    isLoggedIn.value = token.isNotEmpty;
+    if (kDebugMode) {
+      debugPrint('Checking login status: ${isLoggedIn.value} (Token: $token)');
+    }
+  }
 
   Future<http.Response> _makeRequest(String url, Map<String, dynamic> body) async {
     final uri = Uri.parse(url);
@@ -213,3 +225,5 @@ class AuthController extends GetxController {
   }
 
 }
+
+
