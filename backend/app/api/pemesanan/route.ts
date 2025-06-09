@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
       idMeja,
       metode,
       pajak = '11%',
-      totalProduk,
       total,
       keranjangItems
     } = await req.json();
@@ -31,9 +30,9 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    if (typeof total !== 'number' || total <= 0 || typeof totalProduk !== 'number' || totalProduk < 0) {
+    if (typeof total !== 'number' || total <= 0) {
       return NextResponse.json({
-        metadata: { error: 1, message: 'Nilai total atau totalProduk tidak valid.' }
+        metadata: { error: 1, message: 'Nilai total tidak valid.' }
       }, { status: 400 });
     }
 
@@ -76,11 +75,15 @@ export async function POST(req: NextRequest) {
       }, { status: 403 });
     }
 
-    // Validasi jumlah total produk (opsional, jika data keranjang punya informasi jumlah)
-    const jumlahKeranjangProduk = keranjangItems.reduce((acc, item) => acc + (item.jumlah || 0), 0);
-    if (jumlahKeranjangProduk !== totalProduk) {
+    // Hitung totalProduk dari keranjang (jumlah total item)
+    const totalProduk = keranjangUser.reduce((sum, item) => {
+      const jumlah = Number(item.total || item.quantity || 0); // pastikan field ini ada di DB
+      return sum + (isNaN(jumlah) ? 0 : jumlah);
+    }, 0);
+
+    if (totalProduk <= 0) {
       return NextResponse.json({
-        metadata: { error: 1, message: 'Jumlah produk tidak sesuai dengan totalProduk.' }
+        metadata: { error: 1, message: 'Total produk tidak valid (0).' }
       }, { status: 400 });
     }
 
@@ -128,6 +131,7 @@ export async function POST(req: NextRequest) {
     }, { status: 500 });
   }
 }
+
 
 
 export async function GET(req: NextRequest) {
