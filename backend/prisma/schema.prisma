@@ -56,6 +56,7 @@ model tb_pemesanan {
   id               Int                 @id @unique @default(autoincrement())
   idUser           Int
   idMeja           Int
+  idKasir          Int
   metode           tb_pemesanan_metode @default(TUNAI)
   totalProduk      Int
   pajak            String              @db.VarChar(10)
@@ -64,10 +65,13 @@ model tb_pemesanan {
   createdAt        DateTime            @default(now())
   updatedAt        DateTime
   detail_pemesanan detail_pemesanan[]
+
   tb_meja          tb_meja             @relation(fields: [idMeja], references: [id], onDelete: Cascade)
-  tb_user          tb_user             @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  user             tb_user             @relation("UserPemesanan", fields: [idUser], references: [id], onDelete: Cascade)
+  kasir            tb_user             @relation("KasirPemesanan", fields: [idKasir], references: [id], onDelete: Cascade)
 
   @@index([idMeja], map: "tb_pemesanan_idMeja_fkey")
+  @@index([idKasir], map: "tb_pemesanan_idKasir_fkey")
   @@index([idUser], map: "tb_pemesanan_idUser_fkey")
 }
 
@@ -82,7 +86,8 @@ model tb_user {
   imageProfile String?         @db.Text
   role         tb_user_role   @default(PELANGGAN)
   tb_keranjang tb_keranjang[]
-  tb_pemesanan tb_pemesanan[]
+  pemesananSebagaiUser  tb_pemesanan[] @relation("UserPemesanan")
+  pemesananSebagaiKasir tb_pemesanan[] @relation("KasirPemesanan")
 }
 
 enum tb_pemesanan_metode {
