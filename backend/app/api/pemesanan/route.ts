@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
 
     // Hitung totalProduk dari keranjang (jumlah total item)
     const totalProduk = keranjangUser.reduce((sum, item) => {
-      const jumlah = Number(item.total || item.quantity || 0); // pastikan field ini ada di DB
+      const jumlah = Number(item.quantity); // pastikan field ini ada di DB
       return sum + (isNaN(jumlah) ? 0 : jumlah);
     }, 0);
 
