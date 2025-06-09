@@ -160,7 +160,14 @@ export async function GET(req: NextRequest) {
                     include: {
                         tb_keranjang: {
                             include: {
-                                tb_menu: true
+                                tb_menu: {
+                                    select: {
+                                        id: true,
+                                        nama: true,
+                                        harga: true,
+                                        gambar_menu: true
+                                    }
+                                }
                             }
                         }
                     }
