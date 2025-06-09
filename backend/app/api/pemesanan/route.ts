@@ -46,42 +46,37 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // Ambil semua idKeranjang, pastikan valid dan unik
-    const idKeranjangArray = Array.from(new Set(keranjangItems
-      .map((item: any) => Number(item.idKeranjang))
-      .filter(id => !isNaN(id) && id > 0)));
+    // Ambil dan validasi id keranjang
+    const idKeranjangArray = Array.from(new Set(
+      keranjangItems.map((item: any) => Number(item.idKeranjang)).filter(id => !isNaN(id) && id > 0)
+    ));
 
     if (idKeranjangArray.length !== keranjangItems.length) {
       return NextResponse.json({
-        metadata: { error: 1, message: 'Terdapat id keranjang yang tidak valid.' }
+        metadata: { error: 1, message: 'Terdapat id keranjang yang tidak valid atau duplikat.' }
       }, { status: 400 });
     }
 
-    // Ambil keranjang milik user berdasarkan idKeranjang
+    // Ambil keranjang milik user yang statusnya masih FALSE
     const keranjangUser = await prisma.tb_keranjang.findMany({
       where: {
         id: { in: idKeranjangArray },
-        idUser
+        idUser,
+        status: 'FALSE'
       }
     });
 
     if (keranjangUser.length !== idKeranjangArray.length) {
-      // Ada keranjang yang bukan milik user atau tidak ditemukan
-      console.warn(`User ${idUser} mencoba akses keranjang bukan miliknya:`, idKeranjangArray);
+      console.warn(`User ${idUser} mencoba akses keranjang tidak sah. Dikirim:`, idKeranjangArray, 'Ditemukan valid:', keranjangUser.map(k => k.id));
       return NextResponse.json({
-        metadata: { error: 1, message: 'Keranjang tidak valid atau bukan milik user. Aktivitas dicurigai.' }
+        metadata: {
+          error: 1,
+          message: 'Keranjang tidak sah. Mungkin sudah digunakan atau bukan milik Anda.'
+        }
       }, { status: 403 });
     }
 
-    // Validasi status keranjang, misal hanya yang status 'FALSE' boleh dipakai
-    const invalidStatusKeranjang = keranjangUser.find(k => k.status === 'TRUE');
-    if (invalidStatusKeranjang) {
-      return NextResponse.json({
-        metadata: { error: 1, message: 'Keranjang sudah diproses, tidak bisa digunakan lagi.' }
-      }, { status: 400 });
-    }
-
-    // Validasi jumlah produk total dari keranjang sesuai totalProduk input
+    // Validasi jumlah total produk (opsional, jika data keranjang punya informasi jumlah)
     const jumlahKeranjangProduk = keranjangItems.reduce((acc, item) => acc + (item.jumlah || 0), 0);
     if (jumlahKeranjangProduk !== totalProduk) {
       return NextResponse.json({
@@ -93,7 +88,7 @@ export async function POST(req: NextRequest) {
     const pajakNumber = parseFloat(pajak.replace('%', '')) || 0;
     const totalSetelahPajak = Math.round(total + (total * pajakNumber / 100));
 
-    // Buat pesanan beserta detail_pemesanan
+    // Buat pemesanan dan detailnya
     const pemesanan = await prisma.tb_pemesanan.create({
       data: {
         idUser,
@@ -115,7 +110,7 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    // Update status keranjang menjadi TRUE agar tidak bisa dipakai ulang
+    // Tandai keranjang sudah digunakan
     await prisma.tb_keranjang.updateMany({
       where: { id: { in: idKeranjangArray } },
       data: { status: 'TRUE' }
@@ -129,7 +124,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Error saat membuat pesanan:', error);
     return NextResponse.json({
-      metadata: { error: 1, message: 'Terjadi kesalahan server.' }
+      metadata: { error: 1, message: 'Terjadi kesalahan server. Silakan coba lagi nanti.' }
     }, { status: 500 });
   }
 }
