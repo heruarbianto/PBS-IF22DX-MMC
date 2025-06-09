@@ -68,18 +68,6 @@ export async function POST(req: NextRequest) {
       }, { status: 403 });
     }
 
-    // Hitung totalProduk dari keranjang (jumlah total item)
-    const totalProduk = keranjangUser.reduce((sum, item) => {
-      const jumlah = Number(item.quantity); // pastikan field ini ada di DB
-      return sum + (isNaN(jumlah) ? 0 : jumlah);
-    }, 0);
-
-    if (totalProduk <= 0) {
-      return NextResponse.json({
-        metadata: { error: 1, message: 'Total produk tidak valid (0).' }
-      }, { status: 400 });
-    }
-
      // Hitung totalProduk dari keranjang (jumlah total item)
     const totalSemua = keranjangUser.reduce((sum, item) => {
       const jumlah = Number(item.total); // pastikan field ini ada di DB
@@ -104,7 +92,7 @@ export async function POST(req: NextRequest) {
         metode: metodeNormalized as 'TUNAI' | 'ePayment',
         pajak,
         total: totalSetelahPajak,
-        totalProduk,
+        totalProduk: totalSemua,
         updatedAt: new Date(),
         detail_pemesanan: {
           create: keranjangItems.map((item: any) => ({
