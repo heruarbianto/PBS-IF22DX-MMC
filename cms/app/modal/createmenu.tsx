@@ -23,7 +23,14 @@ export default function CreateMenu() {
   };
 
   const fetchsetMenu = async () => {
-    if (!nama || !kategori || !ketersediaan || !harga || !deskripsi || !gambar) {
+    if (
+      !nama ||
+      !kategori ||
+      !ketersediaan ||
+      !harga ||
+      !deskripsi ||
+      !gambar
+    ) {
       alert("Semua field harus diisi.");
       return false;
     }
@@ -70,7 +77,9 @@ export default function CreateMenu() {
         return true;
       } else {
         const errorData = await response.json();
-        alert("Gagal menambahkan menu: " + (errorData.message || "Unknown error"));
+        alert(
+          "Gagal menambahkan menu: " + (errorData.message || "Unknown error")
+        );
         return false;
       }
     } catch (error) {
