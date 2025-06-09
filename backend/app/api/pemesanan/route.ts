@@ -4,124 +4,105 @@ import { prisma } from "../general";
 import { verifyJWT, verifyAdminJWT} from "@/utils/verifyJWT";
 
 export async function POST(req: NextRequest) {
-  const decoded: any = await verifyJWT(req);
+  const decoded : any = await verifyJWT(req);
   if (decoded instanceof Response) return decoded;
 
   try {
-    const idUser = decoded.id;
+    const idUser = Number(decoded.id);
+
     const {
       idMeja,
       metode,
-      pajak = '11%', // default pajak
+      pajak = '11%',
       totalProduk,
       total,
-      keranjangItems,
+      keranjangItems
     } = await req.json();
 
-    // Validasi awal
-    if (!idMeja || !keranjangItems || keranjangItems.length === 0) {
-      return NextResponse.json(
-        { metadata: { error: 1, message: "Data tidak lengkap!" } },
-        { status: 400 }
-      );
+    // Validasi input dasar
+    if (!idMeja || !Array.isArray(keranjangItems) || keranjangItems.length === 0) {
+      return NextResponse.json({
+        metadata: { error: 1, message: 'Data tidak lengkap atau format salah.' }
+      }, { status: 400 });
     }
 
-    // Validasi format keranjang
-// Validasi format keranjang
-const idKeranjangArray = keranjangItems.map((item: { idKeranjang: number }) => item.idKeranjang);
-const invalidIdFormat = idKeranjangArray.some((id: number) => typeof id !== 'number' || isNaN(id));
+    if (typeof total !== 'number' || total <= 0 || typeof totalProduk !== 'number') {
+      return NextResponse.json({
+        metadata: { error: 1, message: 'Nilai total atau totalProduk tidak valid.' }
+      }, { status: 400 });
+    }
 
-if (invalidIdFormat) {
-  return NextResponse.json(
-    {
-      metadata: {
-        error: 1,
-        message: "Format ID keranjang tidak valid!"
-      }
-    },
-    { status: 400 }
-  );
-}
+    // Validasi metode pembayaran
+    const metodeValid = ['TUNAI', 'ePayment'] as const;
+    const metodeNormalized = (metode || '').trim();
 
+    if (!metodeValid.includes(metodeNormalized as any)) {
+      return NextResponse.json({
+        metadata: { error: 1, message: 'Metode pembayaran tidak valid.' }
+      }, { status: 400 });
+    }
 
-    // Ambil data keranjang yang sesuai ID dan milik user ini
-    const keranjangDitemukan = await prisma.tb_keranjang.findMany({
+    // Ambil ID keranjang
+    const idKeranjangArray = keranjangItems.map((item: any) => item.idKeranjang);
+
+    // Validasi kepemilikan keranjang oleh user
+    const keranjangUser = await prisma.tb_keranjang.findMany({
       where: {
         id: { in: idKeranjangArray },
-        idUser: idUser,
-      },
+        idUser
+      }
     });
 
-    // Validasi jika jumlah data ditemukan lebih sedikit dari yang dikirimkan
-    if (keranjangDitemukan.length !== keranjangItems.length) {
-      return NextResponse.json(
-        {
-          metadata: {
-            error: 1,
-            message: "Permintaan ditolak, ada aktivitas mencurigakan!",
-          },
-        },
-        { status: 403 }
-      );
+    if (keranjangUser.length !== idKeranjangArray.length) {
+      return NextResponse.json({
+        metadata: { error: 1, message: 'Keranjang tidak valid atau bukan milik user.' }
+      }, { status: 403 });
     }
 
-    // Hitung nilai pajak numerik dari string (misal '11%')
-    const pajakPersen = parseFloat(pajak.replace('%', '')) / 100;
-    const totalSetelahPajak = Math.round(total - (total * pajakPersen));
+    // Hitung total setelah pajak
+    const pajakNumber = parseFloat(pajak.replace('%', '')) || 0;
+    const totalSetelahPajak = Math.round(total + (total * pajakNumber / 100));
 
-    // Simpan pemesanan
+    // Buat pesanan beserta detail_pemesanan
     const pemesanan = await prisma.tb_pemesanan.create({
       data: {
         idUser,
         idMeja,
-        metode,
-        pajak, // tetap simpan '11%' sebagai string
-        totalProduk,
+        metode: metodeNormalized as 'TUNAI' | 'ePayment',
+        pajak,
         total: totalSetelahPajak,
+        totalProduk,
         updatedAt: new Date(),
         detail_pemesanan: {
-          create: keranjangItems.map((item: { idKeranjang: number; note: string }) => ({
+          create: keranjangItems.map((item: any) => ({
             idKeranjang: item.idKeranjang,
-            note: item.note || '-',
-          })),
-        },
+            note: item.note || '-'
+          }))
+        }
       },
       include: {
-        detail_pemesanan: true,
-      },
+        detail_pemesanan: true
+      }
     });
 
     // Update status keranjang menjadi TRUE
     await prisma.tb_keranjang.updateMany({
       where: { id: { in: idKeranjangArray } },
-      data: { status: 'TRUE' },
+      data: { status: 'TRUE' }
     });
 
-    return NextResponse.json(
-      {
-        metadata: {
-          error: 0,
-          message: "Pemesanan berhasil!",
-        },
-        dataPemesanan: pemesanan,
-      },
-      { status: 201 }
-    );
+    return NextResponse.json({
+      metadata: { error: 0, message: 'Pemesanan berhasil dibuat.' },
+      data: pemesanan
+    }, { status: 201 });
 
-  } catch (error) {
-    console.error("Server error saat proses pemesanan:", error);
-    return NextResponse.json(
-      {
-        metadata: {
-          error: 1,
-          message: "Terjadi kesalahan server!",
-        },
-      },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    console.error('Error saat membuat pesanan:', error.message);
+    return NextResponse.json({
+      metadata: { error: 1, message: 'Terjadi kesalahan server.' }
+    }, { status: 500 });
   }
 }
-
 
 export async function GET(req: NextRequest) {
     // Verifikasi token
