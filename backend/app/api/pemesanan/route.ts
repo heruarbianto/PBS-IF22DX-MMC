@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
       idMeja,
       metode,
       pajak = '11%',
-      total,
       keranjangItems
     } = await req.json();
 
@@ -27,12 +26,6 @@ export async function POST(req: NextRequest) {
     if (!idMeja || !Array.isArray(keranjangItems) || keranjangItems.length === 0) {
       return NextResponse.json({
         metadata: { error: 1, message: 'Data tidak lengkap atau format salah.' }
-      }, { status: 400 });
-    }
-
-    if (typeof total !== 'number' || total <= 0) {
-      return NextResponse.json({
-        metadata: { error: 1, message: 'Nilai total tidak valid.' }
       }, { status: 400 });
     }
 
@@ -87,9 +80,21 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
+     // Hitung totalProduk dari keranjang (jumlah total item)
+    const totalSemua = keranjangUser.reduce((sum, item) => {
+      const jumlah = Number(item.total); // pastikan field ini ada di DB
+      return sum + (isNaN(jumlah) ? 0 : jumlah);
+    }, 0);
+
+    if (totalSemua <= 0) {
+      return NextResponse.json({
+        metadata: { error: 1, message: 'Total produk tidak valid (0).' }
+      }, { status: 400 });
+    }
+
     // Hitung total setelah pajak
     const pajakNumber = parseFloat(pajak.replace('%', '')) || 0;
-    const totalSetelahPajak = Math.round(total + (total * pajakNumber / 100));
+    const totalSetelahPajak = Math.round(totalSemua + (totalSemua * pajakNumber / 100));
 
     // Buat pemesanan dan detailnya
     const pemesanan = await prisma.tb_pemesanan.create({
