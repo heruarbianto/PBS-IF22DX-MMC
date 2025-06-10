@@ -47,3 +47,53 @@ export const GET = async (request: NextRequest) => {
   }
 
 };
+
+// POST request untuk menambahkan meja baru
+export const POST = async (request: NextRequest) => {
+  try {
+    const body = await request.json();
+    const { namaMeja } = body;
+
+    // Validasi sederhana
+    if (!namaMeja || typeof namaMeja !== "string") {
+      return NextResponse.json(
+        {
+          metadata: {
+            error: 1,
+            message: "namaMeja wajib diisi dan harus berupa string",
+          },
+        },
+        { status: 400 }
+      );
+    }
+
+    // Simpan ke database
+    const newMeja = await prisma.tb_meja.create({
+      data: {
+        namaMeja,
+      },
+    });
+
+    return NextResponse.json(
+      {
+        metadata: {
+          error: 0,
+          message: "Meja berhasil ditambahkan",
+        },
+        dataMeja: newMeja,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Error creating meja:", error);
+    return NextResponse.json(
+      {
+        metadata: {
+          error: 1,
+          message: "Internal Server Error",
+        },
+      },
+      { status: 500 }
+    );
+  }
+};
