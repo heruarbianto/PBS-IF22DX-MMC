@@ -12,7 +12,7 @@ export const PUT = async (request: NextRequest, context: { params: { idMeja: str
     const { idMeja } = context.params;
 
     // Validasi ID dari URL
-    const mejaId = parseInt(idMeja);
+    const mejaId = Number(idMeja);
     if (isNaN(mejaId)) {
       return NextResponse.json(
         {
