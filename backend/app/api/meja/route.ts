@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getResponseNotFound, prisma } from "../general";
+import { verifyAdminJWT } from "@/utils/verifyJWT";
 
 export const GET = async (request: NextRequest) => {
     try{
@@ -51,6 +52,11 @@ export const GET = async (request: NextRequest) => {
 // POST request untuk menambahkan meja baru
 export const POST = async (request: NextRequest) => {
   try {
+      // Verifikasi token
+  const decoded: any = await verifyAdminJWT(request);
+
+  // Jika gagal, decoded akan jadi Response (dari middleware)
+  if (decoded instanceof Response) return decoded;
     const body = await request.json();
     const { namaMeja } = body;
 

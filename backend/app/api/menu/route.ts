@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getResponseNotFound, prisma } from "../general";
 import { writeFile } from "fs/promises";
 import path from "path";
+import { verifyAdminJWT } from "@/utils/verifyJWT";
 // Buat fungsi get
 export const GET = async (request: NextRequest) => {
   const { searchParams } = new URL(request.url);
@@ -76,6 +77,11 @@ export const GET = async (request: NextRequest) => {
 
 export async function POST(req: NextRequest) {
   try {
+      // Verifikasi token
+      const decoded: any = await verifyAdminJWT(req);
+    
+      // Jika gagal, decoded akan jadi Response (dari middleware)
+      if (decoded instanceof Response) return decoded;
     // Ambil semua data dari form
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
