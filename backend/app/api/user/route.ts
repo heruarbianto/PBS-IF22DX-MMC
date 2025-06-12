@@ -1,10 +1,41 @@
 // BUat FUngsi Post
 import { NextRequest, NextResponse } from "next/server";
 import { getResponseNotFound, prisma, setBcrypt } from "../general";
-import { verifyJWT } from "@/utils/verifyJWT";
+import { verifyAdminJWT, verifyJWT } from "@/utils/verifyJWT";
 
 // Buat API POST REQUEST UNTUK CREATE DATA
 export const POST = async (request: NextRequest) => {
+    const forwarded = request.headers.get("x-forwarded-for");
+    const ip = forwarded ? forwarded.split(",")[0].trim() : "unknown";
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const todayEnd = new Date();
+  todayEnd.setHours(23, 59, 59, 999);
+
+  // Cek jumlah pendaftaran dari IP hari ini
+  const registerCount = await prisma.ipRegisterLog.count({
+    where: {
+      ip: ip,
+      createdAt: {
+        gte: todayStart,
+        lte: todayEnd,
+      },
+    },
+  });
+
+  if (registerCount >= 5) {
+    return NextResponse.json(
+      {
+        metadata: {
+          error: 1,
+          message: "Anda telah mencapai batas pendaftaran harian. Silakan coba lagi besok.",
+        },
+      },
+      { status: 429 }
+    );
+  }
   const {
     namaValue,
     usernameValue,
@@ -83,7 +114,11 @@ export const POST = async (request: NextRequest) => {
       alamat: alamatValue,
     },
   });
-
+  await prisma.ipRegisterLog.create({
+    data: {
+      ip: ip,
+    },
+  });
   //proses atau respon api
 
   return NextResponse.json(
@@ -101,7 +136,7 @@ export const POST = async (request: NextRequest) => {
 //    Buat Get API tampilkan semua data user
 export const GET = async (request: NextRequest) => {
       // Verifikasi token
-  const decoded: any = await verifyJWT(request);
+  const decoded: any = await verifyAdminJWT(request);
 
   // Jika gagal, decoded akan jadi Response (dari middleware)
   if (decoded instanceof Response) return decoded;
