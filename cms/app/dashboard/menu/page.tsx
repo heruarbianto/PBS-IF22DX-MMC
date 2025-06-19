@@ -7,6 +7,7 @@ import { faXmark, faPlus, faCircleExclamation } from "@fortawesome/free-solid-sv
 import TambahMenu from "../../modal/createmenu";
 import { useRouter } from "next/navigation";
 import {jwtDecode} from "jwt-decode";
+import EditMenu from "@/app/modal/editMenu";
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
@@ -145,7 +146,7 @@ export default function MainPage() {
       </section>
 
       {/* Modal Edit */}
-      {/* {isBukaModal && selectedMenuId !== null && (
+      {isBukaModal && selectedMenuId !== null && (
         <div
           onClick={handleOverlayClick}
           className="fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto font-[sans-serif]"
@@ -157,7 +158,7 @@ export default function MainPage() {
             <EditMenu id={selectedMenuId} />
           </div>
         </div>
-      )} */}
+      )}
 
       {/* Modal Tambah */}
       {isBukaModalCreate && (
