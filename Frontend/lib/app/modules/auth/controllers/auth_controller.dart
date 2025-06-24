@@ -223,6 +223,25 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
+Future<bool> logout() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('jwt_token');
+
+  if (token == null) {
+    print("Logout: No token found");
+    return false;
+  }
+
+  final success = await prefs.remove('jwt_token');
+  print("Logout: Token remove success: $success");
+  print("Logout: Token after remove: ${prefs.getString('jwt_token')}");
+
+  isLoggedIn.value = false;
+  return success;
+}
+
+
+
 
 }
 

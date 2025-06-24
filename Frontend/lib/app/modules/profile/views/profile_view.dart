@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../auth/controllers/auth_controller.dart';
 import '../controllers/profile_controller.dart';
 
 class ProfileView extends GetView<ProfileController> {
@@ -66,6 +67,25 @@ class ProfileView extends GetView<ProfileController> {
           backgroundColor: Colors.blueAccent,
           child: const Icon(Icons.edit),
         ),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          child: ElevatedButton.icon(
+            onPressed: () => _handleLogout(),
+            icon: const Icon(Icons.logout),
+            label: Text(
+              "Keluar",
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+        ),
         body: Column(
           children: [
             // Header with Gradient
@@ -100,7 +120,6 @@ class ProfileView extends GetView<ProfileController> {
                                       controller
                                           .userData['imageProfile'].isNotEmpty)
                                   ? NetworkImage(
-                                      // Cek apakah sudah ada domain di depan atau belum
                                       controller.userData['imageProfile']
                                               .startsWith('http')
                                           ? controller.userData['imageProfile']
@@ -224,6 +243,53 @@ class ProfileView extends GetView<ProfileController> {
         ),
       ),
     );
+  }
+
+  void _handleLogout() {
+    Get.defaultDialog(
+        title: "Keluar Akun",
+        middleText: "Apakah kamu yakin ingin logout?",
+        textConfirm: "Ya, Logout",
+        textCancel: "Batal",
+        confirmTextColor: Colors.white,
+        buttonColor: Colors.redAccent,
+        radius: 12,
+        onConfirm: () async {
+          Get.back(); // Tutup dialog
+
+          // Tunggu dialog benar-benar tertutup
+          await Future.delayed(const Duration(milliseconds: 300));
+
+          final authController = Get.find<AuthController>();
+          final success = await authController.logout();
+
+          if (success) {
+            // Delay sebelum pindah halaman agar tidak crash di Web
+            await Future.delayed(const Duration(milliseconds: 300));
+
+            Get.offAllNamed('/login');
+
+            // Tunggu halaman login terload baru snackbar
+            await Future.delayed(const Duration(milliseconds: 400));
+            Get.snackbar(
+              "Logout Berhasil",
+              "Kamu telah keluar dari akun.",
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.green,
+              colorText: Colors.white,
+              margin: const EdgeInsets.all(16),
+              borderRadius: 12,
+            );
+          } else {
+            Get.snackbar(
+              "Logout Gagal",
+              "Token tidak ditemukan atau gagal dihapus.",
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+            );
+          }
+        });
   }
 
   void _showEditProfileBottomSheet(BuildContext context) {
@@ -413,10 +479,10 @@ class ProfileView extends GetView<ProfileController> {
                                       );
                                     },
                                     errorBuilder:
-                                        (context, error, stackTrace) => const Icon(
-                                            Icons.person,
-                                            size: 100,
-                                            color: Colors.white54),
+                                        (context, error, stackTrace) =>
+                                            const Icon(Icons.person,
+                                                size: 100,
+                                                color: Colors.white54),
                                   )
                                 : const Icon(Icons.person,
                                     size: 100, color: Colors.white54),
@@ -451,8 +517,8 @@ class ProfileView extends GetView<ProfileController> {
                           shape: BoxShape.circle,
                         ),
                         padding: const EdgeInsets.all(12),
-                        child:
-                            const Icon(Icons.edit, color: Colors.white70, size: 24),
+                        child: const Icon(Icons.edit,
+                            color: Colors.white70, size: 24),
                       ),
                     ),
                   ),
