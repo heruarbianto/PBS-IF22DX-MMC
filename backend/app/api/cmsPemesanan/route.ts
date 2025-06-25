@@ -17,8 +17,8 @@ export async function GET(req: NextRequest) {
       const validStatus = ["MENUNGGUPEMBAYARAN", "DIPROSES", "SELESAI", "DIBATALKAN"] as const;
       if (status && !validStatus.includes(status as any)) {
         return NextResponse.json(
-          { error: 1,
-            message: "Status tidak valid. Gunakan: MENUNGGUPEMBAYARAN, DIPROSES, SELESAI, DIBATALKAN" },
+          { metadata: { error: 1,
+            message: "Status tidak valid. Gunakan: MENUNGGUPEMBAYARAN, DIPROSES, SELESAI, DIBATALKAN" } },
           { status: 400 }
         );
       }

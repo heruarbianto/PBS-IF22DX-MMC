@@ -1,6 +1,7 @@
 import { verifyAdminJWT } from "@/utils/verifyJWT";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../general";
+import { metadata } from "@/app/layout";
 
 export async function PATCH(
   req: NextRequest,
@@ -29,9 +30,11 @@ export async function PATCH(
     if (!allowedStatus.includes(status)) {
       return NextResponse.json(
         {
+          metadata: {
           error:1,
           message: "Status tidak valid.",
           allowedStatus,
+          }
         },
         { status: 400 }
       );
