@@ -32,7 +32,7 @@ class DetailView extends GetView<DetailController> {
           IconButton(
             icon: const FaIcon(FontAwesomeIcons.cartShopping, color: Colors.blueAccent),
             onPressed: () {
-              Get.toNamed('/chart');
+              controller.onCartClicked();
             },
           ),
         ],

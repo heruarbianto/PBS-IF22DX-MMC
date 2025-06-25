@@ -2,7 +2,8 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../chart/controllers/chart_controller.dart'; // Pastikan path ini sesuai dengan struktur proyek kamu
+import '../../chart/controllers/chart_controller.dart'; 
+import '../../menu/controllers/menu_controller.dart'; 
 
 class DetailController extends GetxController {
   var menuItem = <String, dynamic>{}.obs; // Data item dari API
@@ -58,6 +59,7 @@ class DetailController extends GetxController {
       final token = prefs.getString('jwt_token') ?? '';
       if (token.isEmpty) {
         Get.snackbar('Error', 'Silakan login terlebih dahulu');
+        Get.toNamed('/login');
         return;
       }
 
@@ -133,5 +135,11 @@ class DetailController extends GetxController {
     } finally {
       isAddingToCart(false);
     }
+    
   }
+  Future<void> onCartClicked() async {
+    final menuController = Get.find<MenusController>();
+    await menuController.onCartClicked();
+  }
+  
 }
