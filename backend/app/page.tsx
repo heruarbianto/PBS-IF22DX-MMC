@@ -1,9 +1,9 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 import { startAutoCancelLoop } from "./autoCancelOrder";
-if (typeof window === 'undefined') {
-  startAutoCancelLoop(); // Hanya dijalankan di sisi server
-}
+// if (typeof window === 'undefined') {
+//   startAutoCancelLoop(); // Hanya dijalankan di sisi server
+// }
 export default function Home() {
   return (
     <div className={styles.page}>
