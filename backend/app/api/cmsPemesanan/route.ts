@@ -9,18 +9,18 @@ export async function GET(req: NextRequest) {
   if (decoded instanceof Response) {
     return decoded;
   }
-  const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status");
-
-  // Validasi status
-  const validStatus = ["MENUNGGUPEMBAYARAN", "DIPROSES", "SELESAI", "DIBATALKAN"] as const;
-  if (status && !validStatus.includes(status as any)) {
-    return NextResponse.json(
-      { error: "Status tidak valid. Gunakan: MENUNGGUPEMBAYARAN, DIPROSES, SELESAI, DIBATALKAN" },
-      { status: 400 }
-    );
-  }
   try {
+      const { searchParams } = new URL(req.url);
+      const status = searchParams.get("status");
+    
+      // Validasi status
+      const validStatus = ["MENUNGGUPEMBAYARAN", "DIPROSES", "SELESAI", "DIBATALKAN"] as const;
+      if (status && !validStatus.includes(status as any)) {
+        return NextResponse.json(
+          { error: "Status tidak valid. Gunakan: MENUNGGUPEMBAYARAN, DIPROSES, SELESAI, DIBATALKAN" },
+          { status: 400 }
+        );
+      }
     // Jika status di parameter ada
     if (status) {
     // Ambil semua pemesanan
