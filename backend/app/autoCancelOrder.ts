@@ -5,31 +5,28 @@ import { prisma } from '@/app/api/general';
 let cronStarted = false;
 
 export function startAutoCancelCron() {
-  if (cronStarted) return; // Cegah duplikasi
+  if (cronStarted) return;
   cronStarted = true;
 
-  // Setiap 5 menit
-  cron.schedule('*/5 * * * *', async () => {
-    const batasWaktu = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 jam lalu
+  // Format: detik menit jam tanggal bulan hari
+  cron.schedule('* * * * * *', async () => {
+  const batasWaktu = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 jam lalu
 
-    try {
-      const updated = await prisma.tb_pemesanan.updateMany({
-        where: {
-          status: 'MENUNGGUPEMBAYARAN',
-          createdAt: {
-            lt: batasWaktu,
-          },
-        },
-        data: {
-          status: 'DIBATALKAN',
-        },
-      });
+  try {
+    const updated = await prisma.tb_pemesanan.updateMany({
+      where: {
+        status: 'MENUNGGUPEMBAYARAN',
+        createdAt: { lt: batasWaktu }
+      },
+      data: {
+        status: 'DIBATALKAN'
+      }
+    });
 
+    if (updated.count > 0) {
       console.log(`[AUTO CANCEL] ${updated.count} pesanan dibatalkan.`);
-    } catch (err) {
-      console.error('Gagal update status otomatis:', err);
     }
-  });
-
-  console.log('[CRON] Auto-cancel cron job dimulai...');
-}
+  } catch (err) {
+    console.error('Gagal update status otomatis:', err);
+  }
+});}
