@@ -29,7 +29,8 @@ export async function PATCH(
     if (!allowedStatus.includes(status)) {
       return NextResponse.json(
         {
-          error: "Status tidak valid.",
+          error:1,
+          message: "Status tidak valid.",
           allowedStatus,
         },
         { status: 400 }

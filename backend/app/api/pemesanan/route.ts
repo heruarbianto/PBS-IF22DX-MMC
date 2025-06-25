@@ -141,7 +141,7 @@ export async function GET(req: NextRequest) {
         // Ambil semua pemesanan untuk user ini
         const pemesanan = await prisma.tb_pemesanan.findMany({
             orderBy:{
-                createdAt: 'desc'
+                updatedAt: 'desc'
             },
             where: {
                 idUser
