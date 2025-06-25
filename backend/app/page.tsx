@@ -1,6 +1,6 @@
 import Image from "next/image";
 import styles from "./page.module.css";
-import { startAutoCancelLoop } from "./autoCancelOrder";
+// import { startAutoCancelLoop } from "./autoCancelOrder";
 // if (typeof window === 'undefined') {
 //   startAutoCancelLoop(); // Hanya dijalankan di sisi server
 // }

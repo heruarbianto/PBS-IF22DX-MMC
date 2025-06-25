@@ -60,6 +60,27 @@ export const GET = async (request: NextRequest) => {
     // tampilkan respon api
     return getResponseNotFound();
   }
+  const batasWaktu = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 jam lalu
+
+    try {
+      const updated = await prisma.tb_pemesanan.updateMany({
+        where: {
+          status: 'MENUNGGUPEMBAYARAN',
+          createdAt: {
+            lt: batasWaktu,
+          },
+        },
+        data: {
+          status: 'DIBATALKAN',
+        },
+      });
+
+      if (updated.count > 0) {
+        console.log(`[AUTO CANCEL] ${new Date().toISOString()}: ${updated.count} pesanan dibatalkan.`);
+      }
+    } catch (err) {
+      console.error('[AUTO CANCEL] Gagal update status otomatis:', err);
+    }
   // tampilkan respon api
   return NextResponse.json(
     {
