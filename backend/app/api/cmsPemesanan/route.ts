@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     // Ambil semua pemesanan
     const pemesanan = await prisma.tb_pemesanan.findMany({
       orderBy: {
-        createdAt: "desc",
+        updatedAt: "desc",
       },
       where: {
         status: status as "MENUNGGUPEMBAYARAN" | "DIPROSES" | "SELESAI" | "DIBATALKAN",
@@ -89,6 +89,64 @@ export async function GET(req: NextRequest) {
         }
     );
 }
+    // Jika status tidak ada, ambil semua pemesanan
+    const pemesanan = await prisma.tb_pemesanan.findMany({
+      orderBy: {
+        updatedAt: "desc",
+      },
+      include: {
+        user: {
+          select: {
+            namaLengkap: true,
+            username: true,
+            email: true,
+            noHp: true,
+            alamat: true,
+          },
+        },
+        detail_pemesanan: {
+          include: {
+            tb_keranjang: {
+              include: {
+                tb_menu: {
+                  select: {
+                    id: true,
+                    nama: true,
+                    harga: true,
+                    gambar_menu: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        tb_meja: true,
+      },
+    });
+
+    if (pemesanan.length < 1) {
+      return NextResponse.json(
+        {
+          metadata: {
+            error: 0,
+            message: "Daftar Pesanan Masih Kosong",
+          },
+          dataPemesanan: [],
+        },
+        { status: 200 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        metadata: {
+          error: 0,
+          message: "Pesanan Berhasil Ditampilkan!",
+        },
+        dataPemesanan: pemesanan,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Server error saat mengambil data pemesanan:", error);
     return NextResponse.json(
