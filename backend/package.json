@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"next dev --turbopack -p 1220\" \"node --loader ts-node/esm server.ts\"",
+    "dev": "concurrently \"next dev --turbopack -p 1220\" \"ts-node server.ts\"",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
