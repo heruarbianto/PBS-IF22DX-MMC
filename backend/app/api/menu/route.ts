@@ -27,7 +27,7 @@ export const GET = async (request: NextRequest) => {
         kategori: (kategori as "MAKANAN") || "MINUMAN",
       },
     });
-    // jika data tidak ada
+    // jika data tidak ada 
     if (view.length == 0) {
       // tampilkan respon api
       // tampilkan respon api
