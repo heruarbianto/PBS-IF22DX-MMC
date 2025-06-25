@@ -58,10 +58,10 @@ export async function PATCH(
     );
   } catch (error) {
     return NextResponse.json(
-      {
+      { metadata: {
         error: "Terjadi kesalahan saat memproses permintaan.",
         details: error instanceof Error ? error.message : "Unknown error",
-      },
+      }},
       { status: 500 }
     );
   }
