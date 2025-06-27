@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:pbs_mmc_tukoyo/app/modules/pemesanan/views/pemesanan_view.dart';
 import '../controllers/detail_controller.dart';
 
 class DetailView extends GetView<DetailController> {
@@ -226,7 +225,14 @@ class DetailView extends GetView<DetailController> {
                   onPressed: controller.menuItem['availability'] == 'SOLDOUT'
                       ? null
                       : () {
-                          Get.toNamed('/pemesanan');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Fitur beli langsung belum tersedia'),
+                              duration: const Duration(seconds: 2),
+                              backgroundColor: Colors.blueAccent,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
                         },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
