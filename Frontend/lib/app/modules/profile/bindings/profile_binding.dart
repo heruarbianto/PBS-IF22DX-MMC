@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-
+import 'package:pbs_mmc_tukoyo/app/modules/auth/controllers/auth_controller.dart';
 import '../controllers/profile_controller.dart';
 
 class ProfileBinding extends Bindings {
@@ -8,5 +8,6 @@ class ProfileBinding extends Bindings {
     Get.lazyPut<ProfileController>(
       () => ProfileController(),
     );
+    Get.lazyPut<AuthController>(() => AuthController());
   }
 }

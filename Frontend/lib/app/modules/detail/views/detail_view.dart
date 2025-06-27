@@ -225,7 +225,14 @@ class DetailView extends GetView<DetailController> {
                   onPressed: controller.menuItem['availability'] == 'SOLDOUT'
                       ? null
                       : () {
-                          Get.snackbar('Beli Langsung', 'Fitur beli langsung belum tersedia.');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Fitur beli langsung belum tersedia'),
+                              duration: const Duration(seconds: 2),
+                              backgroundColor: Colors.blueAccent,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
                         },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),

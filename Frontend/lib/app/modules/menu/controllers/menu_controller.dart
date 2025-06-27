@@ -21,14 +21,53 @@ class MenusController extends GetxController {
     fetchMenu();
   }
 
-  Future<void> checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('jwt_token') ?? '';
-    isLoggedIn.value = token.isNotEmpty;
+ Future<void> checkLoginStatus() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('jwt_token') ?? '';
+
+  if (token.isNotEmpty) {
+    try {
+      final response = await http.get(
+        Uri.parse('https://api.mmcproject.web.id/api/user/profile'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        isLoggedIn.value = true;
+      } else if (response.statusCode == 401) {
+        // Token tidak valid atau expired
+        isLoggedIn.value = false;
+        await prefs.remove('jwt_token');
+        if (kDebugMode) {
+          debugPrint('Token invalid/expired. Logged out.');
+        }
+      } else {
+        // Kasus lain, bisa tambahkan penanganan lain jika perlu
+        isLoggedIn.value = false;
+        if (kDebugMode) {
+          debugPrint('Unexpected status code: ${response.statusCode}');
+        }
+      }
+    } catch (e) {
+      isLoggedIn.value = false;
+      if (kDebugMode) {
+        debugPrint('Error while checking login status: $e');
+      }
+    }
+  } else {
+    isLoggedIn.value = false;
     if (kDebugMode) {
-      debugPrint('Checking login status: ${isLoggedIn.value} (Token: $token)');
+      debugPrint('Token kosong. Belum login.');
     }
   }
+
+  if (kDebugMode) {
+    debugPrint('Login status: ${isLoggedIn.value}');
+  }
+}
+
 
   Future<void> fetchMenu({bool isRefresh = false}) async {
     try {

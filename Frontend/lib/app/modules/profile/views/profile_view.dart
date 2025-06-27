@@ -245,41 +245,40 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
-  void _handleLogout() {
-    Get.defaultDialog(
-        title: "Keluar Akun",
-        middleText: "Apakah kamu yakin ingin logout?",
-        textConfirm: "Ya, Logout",
-        textCancel: "Batal",
-        confirmTextColor: Colors.white,
-        buttonColor: Colors.redAccent,
-        radius: 12,
-        onConfirm: () async {
-          Get.back(); // Tutup dialog
+void _handleLogout() {
+  Get.defaultDialog(
+    title: "Keluar Akun",
+    middleText: "Apakah kamu yakin ingin logout?",
+    textConfirm: "Ya, Logout",
+    textCancel: "Batal",
+    confirmTextColor: Colors.white,
+    buttonColor: Colors.redAccent,
+    radius: 12,
+    onConfirm: () {
+      // Tutup dialog tanpa await
+      Get.back();
 
-          // Tunggu dialog benar-benar tertutup
-          await Future.delayed(const Duration(milliseconds: 300));
-
+      Future.delayed(const Duration(milliseconds: 250), () async {
+        try {
           final authController = Get.find<AuthController>();
           final success = await authController.logout();
 
           if (success) {
-            // Delay sebelum pindah halaman agar tidak crash di Web
-            await Future.delayed(const Duration(milliseconds: 300));
+            Future.delayed(const Duration(milliseconds: 100), () {
+              Get.offAllNamed('/login');
+            });
 
-            Get.offAllNamed('/login');
-
-            // Tunggu halaman login terload baru snackbar
-            await Future.delayed(const Duration(milliseconds: 400));
-            Get.snackbar(
-              "Logout Berhasil",
-              "Kamu telah keluar dari akun.",
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.green,
-              colorText: Colors.white,
-              margin: const EdgeInsets.all(16),
-              borderRadius: 12,
-            );
+            Future.delayed(const Duration(milliseconds: 400), () {
+              Get.snackbar(
+                "Logout Berhasil",
+                "Kamu telah keluar dari akun.",
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: Colors.green,
+                colorText: Colors.white,
+                margin: const EdgeInsets.all(16),
+                borderRadius: 12,
+              );
+            });
           } else {
             Get.snackbar(
               "Logout Gagal",
@@ -289,8 +288,21 @@ class ProfileView extends GetView<ProfileController> {
               colorText: Colors.white,
             );
           }
-        });
-  }
+        } catch (e, s) {
+          debugPrint("Logout Error: $e");
+          debugPrint("StackTrace: $s");
+          Get.snackbar(
+            "Error",
+            "Logout gagal karena error internal.",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
+      });
+    },
+  );
+}
 
   void _showEditProfileBottomSheet(BuildContext context) {
     final namaLengkapController =
