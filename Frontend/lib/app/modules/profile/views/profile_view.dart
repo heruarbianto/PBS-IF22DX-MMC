@@ -258,14 +258,12 @@ void _handleLogout() {
       // Tutup dialog tanpa await
       Get.back();
 
-      // Tunda eksekusi agar context selesai
       Future.delayed(const Duration(milliseconds: 250), () async {
         try {
           final authController = Get.find<AuthController>();
           final success = await authController.logout();
 
           if (success) {
-            // Navigasi dan snackbar juga ditunda sedikit
             Future.delayed(const Duration(milliseconds: 100), () {
               Get.offAllNamed('/login');
             });
