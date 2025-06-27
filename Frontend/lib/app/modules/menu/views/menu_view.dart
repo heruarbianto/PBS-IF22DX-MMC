@@ -68,7 +68,9 @@ class MenuView extends GetView<MenusController> {
                           prefixIcon: Icon(
                             Icons.search,
                             color: Colors.blue,
-                            size: MediaQuery.of(context).size.width < 600 ? 22 : 24,
+                            size: MediaQuery.of(context).size.width < 600
+                                ? 22
+                                : 24,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(30),
@@ -80,7 +82,9 @@ class MenuView extends GetView<MenusController> {
                               const EdgeInsets.symmetric(vertical: 0),
                           hintStyle: GoogleFonts.poppins(
                             color: Colors.grey,
-                            fontSize: MediaQuery.of(context).size.width < 600 ? 14 : 16,
+                            fontSize: MediaQuery.of(context).size.width < 600
+                                ? 14
+                                : 16,
                           ),
                         ),
                         onChanged: (value) {
@@ -219,7 +223,8 @@ class MenuView extends GetView<MenusController> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
                 child: Text(
                   'Coba Lagi',
@@ -267,37 +272,36 @@ class MenuView extends GetView<MenusController> {
         double iconSize;
 
         if (constraints.maxWidth < 600) {
-  // Mobile: 2 kolom
-  crossAxisCount = 2;
-  childAspectRatio = 0.65; // Lebih tinggi agar muat isi
-  fontSize = 12;
-  iconSize = 50;
-} else if (constraints.maxWidth < 900) {
-  // Tablet kecil: 3 kolom
-  crossAxisCount = 3;
-  childAspectRatio = 0.65;
-  fontSize = 13;
-  iconSize = 60;
-} else if (constraints.maxWidth < 1200) {
-  // Tablet besar/Desktop kecil: 4 kolom
-  crossAxisCount = 4;
-  childAspectRatio = 0.65;
-  fontSize = 14;
-  iconSize = 70;
-} else if (constraints.maxWidth < 1600) {
-  // Desktop sedang: 6 kolom
-  crossAxisCount = 6;
-  childAspectRatio = 0.65;
-  fontSize = 14;
-  iconSize = 80;
-} else {
-  // Desktop besar: 8 kolom
-  crossAxisCount = 8;
-  childAspectRatio = 0.65;
-  fontSize = 14;
-  iconSize = 90;
-}
-
+          // Mobile: 2 kolom
+          crossAxisCount = 2;
+          childAspectRatio = 0.65; // Lebih tinggi agar muat isi
+          fontSize = 12;
+          iconSize = 50;
+        } else if (constraints.maxWidth < 900) {
+          // Tablet kecil: 3 kolom
+          crossAxisCount = 3;
+          childAspectRatio = 0.65;
+          fontSize = 13;
+          iconSize = 60;
+        } else if (constraints.maxWidth < 1200) {
+          // Tablet besar/Desktop kecil: 4 kolom
+          crossAxisCount = 4;
+          childAspectRatio = 0.65;
+          fontSize = 14;
+          iconSize = 70;
+        } else if (constraints.maxWidth < 1600) {
+          // Desktop sedang: 6 kolom
+          crossAxisCount = 6;
+          childAspectRatio = 0.65;
+          fontSize = 14;
+          iconSize = 80;
+        } else {
+          // Desktop besar: 8 kolom
+          crossAxisCount = 8;
+          childAspectRatio = 0.65;
+          fontSize = 14;
+          iconSize = 90;
+        }
 
         return GridView.builder(
           padding: EdgeInsets.symmetric(
@@ -328,8 +332,8 @@ class MenuView extends GetView<MenusController> {
                     AspectRatio(
                       aspectRatio: 1 / 1,
                       child: ClipRRect(
-                        borderRadius:
-                            const BorderRadius.vertical(top: Radius.circular(15)),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(15)),
                         child: item['image'] != null &&
                                 item['image'].toString().isNotEmpty
                             ? Image.network(
@@ -364,8 +368,8 @@ class MenuView extends GetView<MenusController> {
                     ),
                     Expanded(
                       child: Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -397,7 +401,8 @@ class MenuView extends GetView<MenusController> {
                                 const SizedBox(width: 4),
                                 Text(
                                   '${item['rating']}, ${item['sold']}',
-                                  style: GoogleFonts.poppins(fontSize: fontSize - 2),
+                                  style: GoogleFonts.poppins(
+                                      fontSize: fontSize - 2),
                                 ),
                               ],
                             ),
