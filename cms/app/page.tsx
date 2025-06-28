@@ -6,8 +6,6 @@ import {
   faCircleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 
-
-
 export default function LoginUser({ toggleForm }: { toggleForm: () => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -46,7 +44,9 @@ export default function LoginUser({ toggleForm }: { toggleForm: () => void }) {
       }
 
       // Login berhasil, simpan token ke cookie (atau localStorage jika mau)
-      document.cookie = `authToken=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; SameSite=Lax`;
+      document.cookie = `authToken=${data.token}; path=/; max-age=${
+        7 * 24 * 60 * 60
+      }; secure; SameSite=Lax`;
 
       setSuccessMsg("Login berhasil!");
 
@@ -140,12 +140,12 @@ export default function LoginUser({ toggleForm }: { toggleForm: () => void }) {
 
         <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
           Don’t have an account?{" "}
-          <button
-            onClick={toggleForm}
+          <a
+            href="/user/register"
             className="text-blue-600 hover:underline dark:text-blue-400"
           >
             Register
-          </button>
+          </a>
         </p>
       </div>
     </div>
