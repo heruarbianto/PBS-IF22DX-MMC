@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:pbs_mmc_tukoyo/app/modules/checkout/bindings/checkout_binding.dart';
+import 'package:pbs_mmc_tukoyo/app/modules/checkout/views/checkout_view.dart';
+import 'package:pbs_mmc_tukoyo/app/routes/app_pages.dart';
 import '../controllers/chart_controller.dart';
 
 class ChartView extends StatelessWidget {
@@ -207,7 +210,7 @@ class ChartView extends StatelessWidget {
                       },
                     ),
                   ),
-                 Container(
+                  Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                     margin: const EdgeInsets.all(10),
@@ -248,8 +251,23 @@ class ChartView extends StatelessWidget {
                         const SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
-                            Get.snackbar('Info',
-                                'Proses pembelian belum diimplementasikan');
+                            final selectedItems = controller.getSelectedItems();
+                            for (var item in selectedItems) {
+                              print(
+                                  'Item: ${item['id']} | Note: ${item['note']}');
+                            }
+                            if (selectedItems.isEmpty) {
+                              Get.snackbar(
+                                  "Peringatan", "Tidak ada item yang dipilih");
+                              return;
+                            }
+                            Get.toNamed(
+                              Routes.CHECKOUT,
+                              arguments: {
+                                'items': controller.cartItems,
+                                'selectedItems': controller.getSelectedItems(),
+                              },
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
