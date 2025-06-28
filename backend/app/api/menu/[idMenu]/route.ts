@@ -169,7 +169,12 @@ export async function PATCH(
   }
 }
 
-export const DELETE = async (props:{params: Promise<{idMenu:string}>}) => {
+export const DELETE = async (request: NextRequest, props: { params: Promise<{ idMenu: string }> }) => {
+  // Verifikasi token
+  const decoded: any = await verifyAdminJWT(request);
+
+  // Jika gagal, decoded akan jadi Response (dari middleware)
+  if (decoded instanceof Response) return decoded;
   try{
 
     const params = await props.params;
