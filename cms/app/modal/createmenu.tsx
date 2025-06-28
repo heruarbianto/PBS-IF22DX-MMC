@@ -66,8 +66,25 @@ export default function CreateMenu() {
     formData.append("ketersediaan", ketersediaanUpper);
 
     try {
-      const response = await fetch("https://api.margataqwa.my.id/api/menu", {
+      // Ambil token dari cookie
+      const getTokenFromCookie = () => {
+        const match = document.cookie.match(/(^| )authToken=([^;]+)/);
+        return match ? match[2] : null;
+      };
+
+      const token = getTokenFromCookie();
+
+      if (!token) {
+        alert("Token tidak ditemukan. Silakan login ulang.");
+        return false;
+      }
+
+      // Request POST dengan Bearer Token
+      const response = await fetch("https://api.mmcproject.web.id/api/menu", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
 
@@ -78,12 +95,16 @@ export default function CreateMenu() {
       } else {
         const errorData = await response.json();
         alert(
-          "Gagal menambahkan menu: " + (errorData.message || "Unknown error")
+          "Gagal menambahkan menu: " +
+            (errorData.metadata?.message ||
+              errorData.message ||
+              "Unknown error")
         );
+        console.log("Error Data:", errorData);
         return false;
       }
     } catch (error) {
-      alert("Terjadi kesalahan jaringan.");
+      alert("Terjadi kesalahan jaringan. " + error);
       console.error(error);
       return false;
     }
@@ -99,7 +120,7 @@ export default function CreateMenu() {
       setHarga("");
       setDeskripsi("");
       setGambar(null);
-      window.location.assign("../dashboard");
+      window.location.assign("../dashboard/menu");
     }
   };
 

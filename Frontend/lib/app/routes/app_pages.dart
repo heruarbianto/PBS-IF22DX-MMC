@@ -14,6 +14,7 @@ import '../modules/profile/bindings/profile_binding.dart';
 import '../modules/profile/views/profile_view.dart';
 import '../modules/transaction/bindings/transaction_binding.dart';
 import '../modules/transaction/views/transaction_view.dart';
+
 part 'app_routes.dart';
 
 class AppPages {
@@ -64,6 +65,5 @@ class AppPages {
       page: () => ChartView(),
       binding: ChartBinding(),
     ),
-
   ];
 }
