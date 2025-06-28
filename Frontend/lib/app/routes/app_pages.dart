@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:pbs_mmc_tukoyo/app/modules/checkout/controllers/checkout_controller.dart';
 
 import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/forgot_password_view.dart';
@@ -68,9 +69,16 @@ class AppPages {
       binding: ChartBinding(),
     ),
     GetPage(
-      name: _Paths.CHECKOUT,
-      page: () => const CheckoutView(),
-      binding: CheckoutBinding(),
-    ),
+  name: _Paths.CHECKOUT,
+  page: () => const CheckoutView(),
+  binding: BindingsBuilder(() {
+    final args = Get.arguments as Map<String, dynamic>;
+    final items = args['items'] as List;
+    final selectedItems = args['selectedItems'] as List<Map<String, dynamic>>;
+    Get.lazyPut(() => CheckoutController(items, selectedItems: selectedItems));
+  }),
+),
+
+
   ];
 }

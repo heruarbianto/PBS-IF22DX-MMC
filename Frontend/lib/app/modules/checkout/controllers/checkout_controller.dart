@@ -12,7 +12,7 @@ class CheckoutController extends GetxController {
 
   final List<Map<String, dynamic>> selectedItems;
 
-  CheckoutController({required this.selectedItems});
+  CheckoutController(List items, {required this.selectedItems});
 
   Future<void> submitPesanan() async {
     if (idMejaController.text.isEmpty) {

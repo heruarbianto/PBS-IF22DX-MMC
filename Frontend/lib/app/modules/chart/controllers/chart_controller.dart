@@ -108,4 +108,13 @@ class ChartController extends GetxController {
   void removeItem(int index) {
       updateQuantity(index, cartItems[index]['quantity'] - 1);
   }
+  List<Map<String, dynamic>> getSelectedItems() {
+  final selected = <Map<String, dynamic>>[];
+  for (int i = 0; i < cartItems.length; i++) {
+    if (selectedItems[i]) {
+      selected.add(cartItems[i]);
+    }
+  }
+  return selected;
+}
 }
