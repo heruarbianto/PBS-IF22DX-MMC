@@ -7,11 +7,29 @@ import '../controllers/transaction_controller.dart';
 class TransactionView extends GetView<TransactionController> {
   const TransactionView({super.key});
 
+  Color getStatusColor(String status) {
+    switch (status.toUpperCase()) {
+      case 'PROSES':
+        return Colors.orange;
+      case 'SELESAI':
+        return Colors.green;
+      case 'DIBATALKAN':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ');
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Transaksi"),
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
+      ),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator(color: Colors.blueAccent));
@@ -39,16 +57,39 @@ class TransactionView extends GetView<TransactionController> {
             return Card(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 2,
+              margin: const EdgeInsets.symmetric(vertical: 6),
               child: ExpansionTile(
-                title: Text(
-                  "Total: ${currencyFormat.format(total)}",
-                  style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      currencyFormat.format(total),
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: getStatusColor(status).withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        status,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: getStatusColor(status),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                subtitle: Text("Meja: $meja | Status: $status",
-                    style: GoogleFonts.poppins(fontSize: 13)),
+                subtitle: Text("Meja: $meja", style: GoogleFonts.poppins(fontSize: 13)),
                 children: items.map((item) {
                   final menu = item['tb_keranjang']['tb_menu'];
                   return ListTile(
+                    onTap: () {
+                      Get.toNamed('/detail', arguments: {'id': menu['id']});
+                    },
                     leading: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(

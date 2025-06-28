@@ -64,4 +64,14 @@ class CheckoutController extends GetxController {
       isSubmitting.value = false;
     }
   }
+  @override
+@override
+void onInit() {
+  super.onInit();
+
+  if (Get.arguments != null && Get.arguments is List) {
+    selectedItems.assignAll(List<Map<String, dynamic>>.from(Get.arguments));
+  }
 }
+}
+

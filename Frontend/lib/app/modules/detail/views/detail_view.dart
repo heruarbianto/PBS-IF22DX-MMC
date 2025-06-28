@@ -17,7 +17,8 @@ class DetailView extends GetView<DetailController> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: Colors.blueAccent),
+          icon: const FaIcon(FontAwesomeIcons.arrowLeft,
+              color: Colors.blueAccent),
           onPressed: () => Get.back(),
         ),
         title: Text(
@@ -30,7 +31,8 @@ class DetailView extends GetView<DetailController> {
         ),
         actions: [
           IconButton(
-            icon: const FaIcon(FontAwesomeIcons.cartShopping, color: Colors.blueAccent),
+            icon: const FaIcon(FontAwesomeIcons.cartShopping,
+                color: Colors.blueAccent),
             onPressed: () {
               controller.onCartClicked();
             },
@@ -39,10 +41,13 @@ class DetailView extends GetView<DetailController> {
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator(color: Colors.blue));
+          return const Center(
+              child: CircularProgressIndicator(color: Colors.blue));
         }
         if (controller.menuItem.isEmpty) {
-          return const Center(child: Text('Gagal memuat data', style: TextStyle(color: Colors.grey)));
+          return const Center(
+              child: Text('Gagal memuat data',
+                  style: TextStyle(color: Colors.grey)));
         }
 
         final item = controller.menuItem;
@@ -56,7 +61,8 @@ class DetailView extends GetView<DetailController> {
                   SizedBox(
                     height: 350,
                     width: double.infinity,
-                    child: item['image'] != null && item['image'].toString().isNotEmpty
+                    child: item['image'] != null &&
+                            item['image'].toString().isNotEmpty
                         ? Image.network(
                             item['image'],
                             fit: BoxFit.cover,
@@ -123,14 +129,17 @@ class DetailView extends GetView<DetailController> {
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: item['availability'] == 'SOLDOUT' ? Colors.red : Colors.blueAccent,
+                            color: item['availability'] == 'SOLDOUT'
+                                ? Colors.red
+                                : Colors.blueAccent,
                           ),
                         ),
                         const SizedBox(height: 12),
                         // Rating dan terjual
                         Row(
                           children: [
-                            const FaIcon(FontAwesomeIcons.solidStar, color: Colors.yellow, size: 20),
+                            const FaIcon(FontAwesomeIcons.solidStar,
+                                color: Colors.yellow, size: 20),
                             const SizedBox(width: 4),
                             Text(
                               '${item['rating']} (${item['sold']} terjual)',
@@ -145,7 +154,8 @@ class DetailView extends GetView<DetailController> {
                         // Kategori
                         Row(
                           children: [
-                            const FaIcon(FontAwesomeIcons.tag, color: Colors.blueAccent, size: 20),
+                            const FaIcon(FontAwesomeIcons.tag,
+                                color: Colors.blueAccent, size: 20),
                             const SizedBox(width: 4),
                             Text(
                               item['category'],
@@ -225,14 +235,13 @@ class DetailView extends GetView<DetailController> {
                   onPressed: controller.menuItem['availability'] == 'SOLDOUT'
                       ? null
                       : () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text('Fitur beli langsung belum tersedia'),
-                              duration: const Duration(seconds: 2),
-                              backgroundColor: Colors.blueAccent,
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
+                          final item = controller.menuItem;
+                          final selectedItem = {
+                            'id': item['id'],
+                            'tb_menu': item,
+                            'quantity': 1,
+                          };
+                          Get.toNamed('/checkout', arguments: [selectedItem]);
                         },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
