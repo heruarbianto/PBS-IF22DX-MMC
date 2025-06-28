@@ -6,6 +6,8 @@ import '../modules/auth/views/login_view.dart';
 import '../modules/auth/views/register_view.dart';
 import '../modules/chart/bindings/chart_binding.dart';
 import '../modules/chart/views/chart_view.dart';
+import '../modules/checkout/bindings/checkout_binding.dart';
+import '../modules/checkout/views/checkout_view.dart';
 import '../modules/detail/bindings/detail_binding.dart';
 import '../modules/detail/views/detail_view.dart';
 import '../modules/menu/bindings/menu_binding.dart';
@@ -64,6 +66,11 @@ class AppPages {
       name: _Paths.CHART,
       page: () => ChartView(),
       binding: ChartBinding(),
+    ),
+    GetPage(
+      name: _Paths.CHECKOUT,
+      page: () => const CheckoutView(),
+      binding: CheckoutBinding(),
     ),
   ];
 }
