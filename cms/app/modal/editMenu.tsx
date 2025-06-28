@@ -36,10 +36,12 @@ export default function EditMenu({ id, closeModal }: MenuDetailProps) {
   // Get JWT token from cookies
   const getToken = () => {
     if (typeof window === "undefined") return null;
-    return document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("authToken="))
-      ?.split("=")[1] || null;
+    return (
+      document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("authToken="))
+        ?.split("=")[1] || null
+    );
   };
 
   // Open/close delete confirmation modal
@@ -87,7 +89,6 @@ export default function EditMenu({ id, closeModal }: MenuDetailProps) {
     }
   };
 
-  // Delete menu
   const fetchDeleteMenu = async () => {
     const token = getToken();
     if (!token) {
@@ -96,13 +97,25 @@ export default function EditMenu({ id, closeModal }: MenuDetailProps) {
     }
 
     try {
-      await axios.delete(`${API_URL}/${id}`, {
+      const response = await axios.delete(`${API_URL}/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (closeModal) closeModal();
-      window.location.assign("../dashboard/menu");
+
+      // 🔥 Tambahan: periksa apakah memang berhasil
+      if (response.data.metadata?.error === 0) {
+        if (closeModal) closeModal();
+        window.location.assign("../dashboard/menu");
+      } else {
+        // 🔥 Tambahan: tampilkan pesan error dari metadata
+        setError(response.data.metadata?.message || "Gagal menghapus menu.");
+      }
     } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to delete menu.");
+      // 🔥 Tambahan: ambil error dari metadata.message kalau ada
+      const apiError =
+        err.response?.data?.metadata?.message ||
+        err.response?.data?.error ||
+        "Failed to delete menu.";
+      setError(apiError);
       console.error(err);
     }
   };
