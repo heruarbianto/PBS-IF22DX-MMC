@@ -32,10 +32,12 @@ export default function DetailMenu({ idMenu, idUser }: MenuDetailProps) {
   // Get JWT token from cookies
   const getToken = () => {
     if (typeof window === "undefined") return null;
-    return document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("authToken="))
-      ?.split("=")[1] || null;
+    return (
+      document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("authToken="))
+        ?.split("=")[1] || null
+    );
   };
 
   // Increment/decrement quantity
@@ -63,8 +65,7 @@ export default function DetailMenu({ idMenu, idUser }: MenuDetailProps) {
       }
     } catch (err: any) {
       setError(
-        err.response?.data?.metadata?.message ||
-          "Gagal mengambil data menu."
+        err.response?.data?.metadata?.message || "Gagal mengambil data menu."
       );
       console.error(err);
     }
@@ -97,12 +98,13 @@ export default function DetailMenu({ idMenu, idUser }: MenuDetailProps) {
       if (response.data.metadata?.error === 0) {
         window.location.assign("/cart");
       } else {
-        setError(response.data.metadata?.message || "Gagal menambah ke keranjang.");
+        setError(
+          response.data.metadata?.message || "Gagal menambah ke keranjang."
+        );
       }
     } catch (err: any) {
       setError(
-        err.response?.data?.metadata?.message ||
-          "Gagal menambah ke keranjang."
+        err.response?.data?.metadata?.message || "Gagal menambah ke keranjang."
       );
       console.error(err);
     }

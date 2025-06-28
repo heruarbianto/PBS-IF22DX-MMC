@@ -65,74 +65,49 @@ export default function CreateMenu() {
     formData.append("kategori", kategoriLower);
     formData.append("ketersediaan", ketersediaanUpper);
 
-//     try {
-//       const response = await fetch("https://api.mmcproject.web.id/api/menu", {
-//         method: "POST",
-//         body: formData,
-//       });
+    try {
+      // Ambil token dari cookie
+      const getTokenFromCookie = () => {
+        const match = document.cookie.match(/(^| )authToken=([^;]+)/);
+        return match ? match[2] : null;
+      };
 
-//       if (response.ok) {
-//         const data = await response.json();
-//         alert("Menu berhasil ditambahkan!");
-//         return true;
-//       } else {
-//         const errorData = await response.json();
-//         alert(
-//           "Gagal menambahkan menu: " + (errorData.metadata.message || "Unknown error")
-//         );
-//         console.log(errorData)
-// console.log(errorData.message)
-// console.log(errorData.metadata.message)
-//         return false;
-//       }
-//     } 
-try {
-  // Ambil token dari cookie
-  const getTokenFromCookie = () => {
-    const match = document.cookie.match(/(^| )authToken=([^;]+)/);
-    return match ? match[2] : null;
-  };
+      const token = getTokenFromCookie();
 
-  const token = getTokenFromCookie();
+      if (!token) {
+        alert("Token tidak ditemukan. Silakan login ulang.");
+        return false;
+      }
 
-  if (!token) {
-    alert("Token tidak ditemukan. Silakan login ulang.");
-    return false;
-  }
+      // Request POST dengan Bearer Token
+      const response = await fetch("https://api.mmcproject.web.id/api/menu", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
-  // Request POST dengan Bearer Token
-  const response = await fetch("https://api.mmcproject.web.id/api/menu", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  if (response.ok) {
-    const data = await response.json();
-    alert("Menu berhasil ditambahkan!");
-    return true;
-  } else {
-    const errorData = await response.json();
-    alert(
-      "Gagal menambahkan menu: " +
-        (errorData.metadata?.message || errorData.message || "Unknown error")
-    );
-    console.log("Error Data:", errorData);
-    return false;
-  }
-} catch (error) {
-  alert("Terjadi kesalahan jaringan. " + error);
-  console.error(error);
-  return false;
-}
-
-    // catch (error) {
-    //   alert("Terjadi kesalahan jaringan." + error);
-    //   console.error(error);
-    //   return false;
-    // }
+      if (response.ok) {
+        const data = await response.json();
+        alert("Menu berhasil ditambahkan!");
+        return true;
+      } else {
+        const errorData = await response.json();
+        alert(
+          "Gagal menambahkan menu: " +
+            (errorData.metadata?.message ||
+              errorData.message ||
+              "Unknown error")
+        );
+        console.log("Error Data:", errorData);
+        return false;
+      }
+    } catch (error) {
+      alert("Terjadi kesalahan jaringan. " + error);
+      console.error(error);
+      return false;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
