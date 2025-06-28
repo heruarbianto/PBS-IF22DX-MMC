@@ -168,3 +168,59 @@ export async function PATCH(
     );
   }
 }
+
+export const DELETE = async (props:{params: Promise<{idMenu:string}>}) => {
+  try{
+
+    const params = await props.params;
+
+    // Cek data menu tersedia/tidak
+    const cek = await prisma.tb_menu.findUnique({
+      where:{
+        id: Number(params.idMenu)
+      },
+    });
+
+    // BUat kondisi jika data ditemukan
+    if(!cek){
+      // tampilkan respon api
+      return NextResponse.json(
+        {
+          metadata: {
+            error: 1,
+            message: "ID Parameter Harus Angka",
+          },
+        },{
+            status:200
+        })
+    
+      }
+      
+      await prisma.tb_menu.delete({
+        where :{
+          id: Number(params.idMenu)
+        }
+})
+
+return NextResponse.json(
+  {
+    metadata: {
+      error: 0,
+      message: "Berhasil Menghapus!!!",
+    },
+    dataMenu:cek,
+  },{
+    status:200
+  })
+}catch(e:any){
+  return NextResponse.json(
+    {
+      metadata: {
+        error: 1,
+        message: "ID Parameter Harus Angka",
+      },
+    },{
+        status:400
+    })
+}
+}
