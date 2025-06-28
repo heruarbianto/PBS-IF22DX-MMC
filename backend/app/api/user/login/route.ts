@@ -53,7 +53,7 @@ export const POST = async (request: NextRequest) => {
         role: user.role
       },
       JWT_SECRET,
-      { expiresIn: '7d' } // token valid selama 7 hari
+      { expiresIn: '8h' } // token valid selama 8 jam
     );
 
     // Kirim response sukses
