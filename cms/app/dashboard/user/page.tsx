@@ -1,195 +1,140 @@
 "use client";
 import axios from "axios";
-import { faPencil, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Link from "next/link";
-import useSWR from "swr";
-import { useEffect, useRef, useState } from "react";
-import style from "./style.module.css";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-// Fetcher dengan Authorization header
-const fetcher = async (url: string) => {
-  // Ambil token dari cookie
-  const token =
-    typeof document !== "undefined"
-      ? document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("authToken="))
-          ?.split("=")[1]
-      : null;
+export default function EditUser() {
+  const params = useParams();
+  const router = useRouter();
 
-  if (!token) throw new Error("Token tidak ditemukan. Harap login.");
-
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+  const [formData, setFormData] = useState({
+    namaLengkap: "",
+    username: "",
+    password: "",
   });
+  const [loading, setLoading] = useState(false);
 
-  if (!response.ok) {
-    const errRes = await response.json();
-    throw new Error(errRes.error || "Gagal mengambil data user.");
-  }
-
-  return response.json();
-};
-
-export default function ViewDataUser() {
-  const modalRef = useRef<HTMLDialogElement>(null);
-  const modalContentRef = useRef<HTMLParagraphElement>(null);
-
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastVisible, setToastVisible] = useState(false);
-
-  // SWR
-  const { data, error, isLoading, mutate } = useSWR(
-    "https://api.mmcproject.web.id/api/user",
-    fetcher
-  );
-
-  // Toast auto-hide
-  useEffect(() => {
-    if (toastVisible) {
-      const timer = setTimeout(() => {
-        setToastVisible(false);
-      }, 3000);
-      return () => clearTimeout(timer);
+  const getDetailData = async (id: string) => {
+    try {
+      const res = await axios.get(`https://api.mmcproject.web.id/api/user/${id}`);
+      if (res.data.metadata?.error) {
+        alert(res.data.metadata.message);
+        router.push("/dashboard/user");
+      } else {
+        setFormData({
+          namaLengkap: res.data.dataUser.namaLengkap || "",
+          username: res.data.dataUser.username || "",
+          password: "",
+        });
+      }
+    } catch (err) {
+      alert("Gagal mengambil data user");
+      router.push("/dashboard/user");
     }
-  }, [toastVisible]);
-
-  // Modal open
-  const openModal = (id: number, nama: string) => {
-    setSelectedId(id);
-    modalContentRef.current!.innerHTML = `Apakah Anda yakin ingin menghapus user <strong>${nama}</strong>?`;
-    modalRef.current?.showModal();
   };
 
-  // Delete handler
-  const handleDelete = async () => {
-    if (selectedId == null) return;
+  useEffect(() => {
+    if (params?.id) getDetailData(params.id as string);
+  }, [params]);
 
-    const token =
-      typeof document !== "undefined"
-        ? document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("authToken="))
-            ?.split("=")[1]
-        : null;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-    if (!token) {
-      setToastMessage("Token tidak ditemukan. Harap login.");
-      setToastVisible(true);
-      return;
-    }
-
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
     try {
-      const res = await axios.delete(
-        `https://api.mmcproject.web.id/api/user/${selectedId}`,
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("authToken="))
+        ?.split("=")[1];
+
+      const form = new FormData();
+      form.append("namaLengkap", formData.namaLengkap);
+      form.append("username", formData.username);
+      if (formData.password) {
+        form.append("password", formData.password);
+      }
+
+      await axios.patch(
+        `https://api.mmcproject.web.id/api/user/${params.id}`,
+        form,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      setToastMessage(res.data.metadata?.message || "Data berhasil dihapus.");
-      setToastVisible(true);
-      mutate(); // Refresh data
-      modalRef.current?.close();
+
+      alert("Data berhasil diperbarui!");
+      router.push("/dashboard/user");
     } catch (err: any) {
-      setToastMessage(
-        err.response?.data?.metadata?.message || "Gagal menghapus data."
+      alert(
+        err.response?.data?.metadata?.message ||
+          "Gagal memperbarui data user."
       );
-      setToastVisible(true);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="p-4">
-      <section className="text-right mb-4">
-        <Link href={"/add"} className="btn btn-success">
-          <FontAwesomeIcon icon={faPlus} /> Tambah User
-        </Link>
-      </section>
-
-      {error && (
-        <div className="alert alert-error">{error.message}</div>
-      )}
-
-      <section className="overflow-x-auto">
-        <table className="table w-full">
-          <thead>
-            <tr className={style["background-tr"]}>
-              <th className="text-center">Aksi</th>
-              <th className="text-center">Nama</th>
-              <th className="text-center">Username</th>
-              <th className="text-center">Email</th>
-              <th className="text-center">No HP</th>
-              <th className="text-center">Alamat</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.metadata.error === 1 ? (
-              <tr>
-                <td colSpan={6} className="text-center">
-                  {data.metadata.message}
-                </td>
-              </tr>
-            ) : (
-              data?.dataUser?.map((user: any) => (
-                <tr key={user.id} className="hover:bg-base-300">
-                  <td className="text-center">
-                    <Link
-                      href={`/edit/${user.id}`}
-                      title="Edit User"
-                      className={style["frame-button-edit"]}
-                    >
-                      <FontAwesomeIcon icon={faPencil} />
-                    </Link>
-                    <button
-                      onClick={() => openModal(user.id, user.namaLengkap)}
-                      title="Hapus User"
-                      className={style["frame-button-delete"]}
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  </td>
-                  <td className="text-center">{user.namaLengkap}</td>
-                  <td className="text-center">{user.username}</td>
-                  <td className="text-center">{user.email}</td>
-                  <td className="text-center">{user.noHp}</td>
-                  <td className="text-center">{user.alamat}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </section>
-
-      {toastVisible && (
-        <div className="toast toast-top toast-end">
-          <div className="alert alert-info">
-            <span>{toastMessage}</span>
-          </div>
+    <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow rounded">
+      <h1 className="text-2xl font-bold mb-4">Ubah Data User</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block font-medium">Nama Lengkap</label>
+          <input
+            type="text"
+            name="namaLengkap"
+            value={formData.namaLengkap}
+            onChange={handleChange}
+            className="input input-bordered w-full"
+            placeholder="Nama lengkap"
+            required
+          />
         </div>
-      )}
-
-      <dialog ref={modalRef} className="modal">
-        <div className="modal-box">
-          <h3 className="font-bold text-lg">Konfirmasi</h3>
-          <p ref={modalContentRef} className="py-4"></p>
-          <div className="modal-action">
-            <button className="btn btn-error" onClick={handleDelete}>
-              Ya, Hapus
-            </button>
-            <button className="btn" onClick={() => modalRef.current?.close()}>
-              Batal
-            </button>
-          </div>
+        <div>
+          <label className="block font-medium">Username</label>
+          <input
+            type="text"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            className="input input-bordered w-full"
+            placeholder="Username"
+            required
+          />
         </div>
-      </dialog>
+        <div>
+          <label className="block font-medium">Password Baru (Opsional)</label>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            className="input input-bordered w-full"
+            placeholder="Isi password jika ingin mengganti"
+          />
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={loading}
+          >
+            {loading ? "Menyimpan..." : "Simpan Perubahan"}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => router.push("/dashboard/user")}
+          >
+            Batal
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
-// "use client";
-// export default function Page() {
-//   return <div>Hello User Page</div>;
-// }
