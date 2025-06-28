@@ -140,12 +140,13 @@ export default function LoginUser({ toggleForm }: { toggleForm: () => void }) {
 
         <p className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
           Don’t have an account?{" "}
-          <button
-            onClick={toggleForm}
-            className="text-blue-600 hover:underline dark:text-blue-400"
-          >
-            Register
-          </button>
+          <a
+  href="/user/register"
+  className="text-blue-600 hover:underline dark:text-blue-400"
+>
+  Register
+</a>
+
         </p>
       </div>
     </div>
